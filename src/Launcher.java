@@ -1,6 +1,8 @@
 public class Launcher {
-
     public static void main(String[] args) {
-        StartFrame startFrame = new StartFrame();
+        Model model = new Model();
+        StartFrame startFrame = new StartFrame(model);
+        startFrame.run();
+        System.out.println("Done");
     }
 }
