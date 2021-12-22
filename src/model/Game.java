@@ -1,6 +1,7 @@
 package model;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Game {
@@ -8,10 +9,16 @@ public class Game {
     private String saveName;
     private String creationDate;
 
+    private final ArrayList<CryptoCurrency> cryptoCurrencyArrayList = new ArrayList<CryptoCurrency>();
+
     public Game(String saveName, int index) {
         calculateCreationDate();
         this.saveName = saveName;
         this.index = index;
+    }
+
+    private void initCryptoCurrencyArrayList(){
+
     }
 
     private void calculateCreationDate() {

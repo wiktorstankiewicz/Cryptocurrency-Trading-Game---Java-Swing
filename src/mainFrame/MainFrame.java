@@ -1,6 +1,5 @@
 package mainFrame;
 
-import Interfaces.Observable;
 import Interfaces.Observer;
 import model.Model;
 
@@ -17,9 +16,8 @@ public class MainFrame extends JFrame implements Observer, Runnable {
     private final JPanel containerPanel = new JPanel();
     private final JPanel mainPanel = new JPanel();
     private final JPanel savesPanel = new JPanel();
-    private final JPanel gamePanel = new JPanel();
+    private final GamePanel gamePanel = new GamePanel();
     private final JPanel createGamePanel = new JPanel();
-
     private static final CardLayout cardLayout = new CardLayout();
     private Model model;
 
@@ -33,17 +31,18 @@ public class MainFrame extends JFrame implements Observer, Runnable {
         this.setTitle(TITLE);
         this.setSize(WIDTH, HEIGHT);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.add(containerPanel);
+        //this.add(containerPanel);
 
-        initContainerPanel();
-        initMainPanel();
-        initSavesPanel();
-        initGamePanel();
-        initCreateGamePanel();
+//        initContainerPanel();
+//        initMainPanel();
+//        initSavesPanel();
+//        initGamePanel();
+//        initCreateGamePanel();
 
 
         //this.add(BorderLayout.NORTH,TITLE_JTEXT);
-        cardLayout.show(containerPanel, "mainPanel");
+        //cardLayout.show(containerPanel, "mainPanel");
+        this.add(gamePanel);
         this.setVisible(true);
     }
 
@@ -67,7 +66,7 @@ public class MainFrame extends JFrame implements Observer, Runnable {
 
     }
 
-    private void initContainerPanel(){
+    private void initContainerPanel() {
         containerPanel.setLayout(cardLayout);
         containerPanel.add(mainPanel, "mainPanel");
         containerPanel.add(savesPanel, "savesPanel");
@@ -76,14 +75,14 @@ public class MainFrame extends JFrame implements Observer, Runnable {
         containerPanel.setSize(WIDTH, HEIGHT);
     }
 
-    private void initMainPanel(){
+    private void initMainPanel() {
         JPanel buttonsPanel = new JPanel(new GridBagLayout());
 
-        JTextField gameTitle = new JTextField("Symulator giełdy kryptowalut",1);
+        JTextField gameTitle = new JTextField("Symulator giełdy kryptowalut", 1);
         gameTitle.setEditable(false);
         gameTitle.setFocusable(false);
         gameTitle.setOpaque(false);
-        gameTitle.setFont(new Font("Comic sans", Font.PLAIN,55));
+        gameTitle.setFont(new Font("Comic sans", Font.PLAIN, 55));
         gameTitle.setHorizontalAlignment(JTextField.CENTER);
 
         JButton savesButton = initSavesButton();
@@ -97,35 +96,35 @@ public class MainFrame extends JFrame implements Observer, Runnable {
         buttonsPanel.add(dummyGameButton);
 
         mainPanel.setLayout(new BorderLayout());
-        mainPanel.add(gameTitle,BorderLayout.NORTH);
-        mainPanel.add(buttonsPanel,BorderLayout.CENTER);
+        mainPanel.add(gameTitle, BorderLayout.NORTH);
+        mainPanel.add(buttonsPanel, BorderLayout.CENTER);
         mainPanel.setSize(WIDTH, HEIGHT);
     }
 
     private JButton initDummyGameButton() {
         JButton dummyGameButton = new JButton("Graj - todo");
-        dummyGameButton.setFont(new Font("Comic sans", Font.BOLD,30));
+        dummyGameButton.setFont(new Font("Comic sans", Font.BOLD, 30));
         dummyGameButton.addActionListener(new dummyGameButtonClicked());
         return dummyGameButton;
     }
 
     private JButton initExitGameButton() {
         JButton exitGameButton = new JButton("Wyjdź do Windows");
-        exitGameButton.setFont(new Font("Comic Sans",Font.BOLD,30));
+        exitGameButton.setFont(new Font("Comic Sans", Font.BOLD, 30));
         exitGameButton.addActionListener(new ExitButtonClicked());
         return exitGameButton;
     }
 
     private JButton initCreateGameButton() {
         JButton createGameButton = new JButton("Stwórz nową grę");
-        createGameButton.setFont(new Font("Comic Sans",Font.BOLD,30));
+        createGameButton.setFont(new Font("Comic Sans", Font.BOLD, 30));
         createGameButton.addActionListener(new CreateGameButtonClicked());
         return createGameButton;
     }
 
     private JButton initSavesButton() {
         JButton savesButton = new JButton("Wczytaj zapis");
-        savesButton.setFont(new Font("Comic Sans",Font.BOLD,30));
+        savesButton.setFont(new Font("Comic Sans", Font.BOLD, 30));
         savesButton.addActionListener(new SavesButtonClicked());
         return savesButton;
     }
@@ -141,7 +140,7 @@ public class MainFrame extends JFrame implements Observer, Runnable {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Create Game button clicked!");
-            cardLayout.show(containerPanel,"createGamePanel");
+            cardLayout.show(containerPanel, "createGamePanel");
         }
     }
 
@@ -149,7 +148,7 @@ public class MainFrame extends JFrame implements Observer, Runnable {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Saves button clicked!");
-            cardLayout.show(containerPanel,"savesPanel");
+            cardLayout.show(containerPanel, "savesPanel");
         }
     }
 
@@ -157,7 +156,7 @@ public class MainFrame extends JFrame implements Observer, Runnable {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("dummyGameButton clicked!");
-            cardLayout.show(containerPanel,"gamePanel");
+            cardLayout.show(containerPanel, "gamePanel");
         }
     }
 }
