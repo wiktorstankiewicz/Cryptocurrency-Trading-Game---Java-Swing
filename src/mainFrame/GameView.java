@@ -1,19 +1,24 @@
 package mainFrame;
 
+import plot.PlotModel;
+import plot.PlotView;
+
 import javax.swing.*;
 import java.awt.*;
 
-public class GamePanel extends JPanel {
+public class GameView extends JPanel {
     private JPanel centerPanel = new JPanel();
     private JPanel topPanel = new JPanel();
     private JPanel bottomPanel = new JPanel();
     private JPanel rightPanel = new JPanel();
     private JPanel leftPanel = new JPanel();
 
-    public GamePanel(){
+    private GameModel gameModel;
+
+    public GameView(GameModel gameModel){
+        this.gameModel = gameModel;
         this.setLayout(new BorderLayout());
         initBorderLayoutPanels();
-
     }
 
     private void initBorderLayoutPanels(){
@@ -54,6 +59,6 @@ public class GamePanel extends JPanel {
         centerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         centerPanel.setBackground(Color.GREEN);
         this.add(centerPanel,BorderLayout.CENTER);
+        this.add(new PlotView(new PlotModel()));
     }
-
 }

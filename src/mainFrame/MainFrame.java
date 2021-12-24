@@ -1,7 +1,6 @@
 package mainFrame;
 
 import Interfaces.Observer;
-import model.Model;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,17 +11,17 @@ public class MainFrame extends JFrame implements Observer, Runnable {
     private final int HEIGHT = 600;
     private final int WIDTH = 1000;
     private final String TITLE = "Giełda - Wiktor Stankiewicz";
-
     private final JPanel containerPanel = new JPanel();
     private final JPanel mainPanel = new JPanel();
     private final JPanel savesPanel = new JPanel();
-    private final GamePanel gamePanel = new GamePanel();
     private final JPanel createGamePanel = new JPanel();
-    private static final CardLayout cardLayout = new CardLayout();
-    private Model model;
+    private final CardLayout cardLayout = new CardLayout();
 
-    public MainFrame(Model model) {
-        this.model = model;
+    private GameView gameView;
+    private GameModel gameModel;
+
+    public MainFrame(GameModel model) {
+        this.gameModel = model;
     }
 
 
@@ -31,19 +30,10 @@ public class MainFrame extends JFrame implements Observer, Runnable {
         this.setTitle(TITLE);
         this.setSize(WIDTH, HEIGHT);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //this.add(containerPanel);
-
-//        initContainerPanel();
-//        initMainPanel();
-//        initSavesPanel();
-//        initGamePanel();
-//        initCreateGamePanel();
-
-
-        //this.add(BorderLayout.NORTH,TITLE_JTEXT);
-        //cardLayout.show(containerPanel, "mainPanel");
-        this.add(gamePanel);
+        this.add(gameView);
         this.setVisible(true);
+        gameModel = new GameModel();
+        gameView = new GameView(gameModel);
     }
 
     private void initCreateGamePanel() {
@@ -52,8 +42,8 @@ public class MainFrame extends JFrame implements Observer, Runnable {
     }
 
     private void initGamePanel() {
-        gamePanel.setBackground(Color.red);
-        gamePanel.add(new JTextArea("Game Panel"));
+        gameView.setBackground(Color.red);
+        gameView.add(new JTextArea("Game Panel"));
     }
 
     private void initSavesPanel() {
@@ -70,7 +60,7 @@ public class MainFrame extends JFrame implements Observer, Runnable {
         containerPanel.setLayout(cardLayout);
         containerPanel.add(mainPanel, "mainPanel");
         containerPanel.add(savesPanel, "savesPanel");
-        containerPanel.add(gamePanel, "gamePanel");
+        containerPanel.add(gameView, "gamePanel");
         containerPanel.add(createGamePanel, "createGamePanel");
         containerPanel.setSize(WIDTH, HEIGHT);
     }
