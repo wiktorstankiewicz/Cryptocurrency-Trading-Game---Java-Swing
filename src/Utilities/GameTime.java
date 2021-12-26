@@ -1,4 +1,4 @@
-package mainFrame;
+package Utilities;
 
 public class GameTime {
     private int days;//0-inf

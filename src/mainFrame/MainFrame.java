@@ -1,6 +1,7 @@
 package mainFrame;
 
 import Interfaces.Observer;
+import model.GameModel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,16 +25,20 @@ public class MainFrame extends JFrame implements Observer, Runnable {
         this.gameModel = model;
     }
 
-
     @Override
     public void run() {
-        this.setTitle(TITLE);
-        this.setSize(WIDTH, HEIGHT);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.add(gameView);
-        this.setVisible(true);
+        initMainFrame();
         gameModel = new GameModel();
         gameView = new GameView(gameModel);
+        this.add(gameView);
+        this.pack();
+        this.setVisible(true);
+    }
+
+    private void initMainFrame(){
+        this.setTitle(TITLE);
+        //this.setSize(WIDTH, HEIGHT);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
     private void initCreateGamePanel() {
