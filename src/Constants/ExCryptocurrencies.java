@@ -14,12 +14,18 @@ public class ExCryptocurrencies {
     private static final Random generator = new Random();
 
     static {
-        availableCryptoCurrencies.add(new CryptoCurrency("Bitcoin!",
+        availableCryptoCurrencies.add(new CryptoCurrency("Bitcoin",
                 300, "resources/btc.png", VOLATILITY, EAR));
-       /*availableCryptoCurrencies.add(new CryptoCurrency("Matic!"));
-       availableCryptoCurrencies.add(new CryptoCurrency("DogeCoin!"));
-       availableCryptoCurrencies.add(new CryptoCurrency("Ethereum!"));
-       availableCryptoCurrencies.add(new CryptoCurrency("Shiba Inu!"));*/
+        availableCryptoCurrencies.add(new CryptoCurrency("Ethereum",
+                300, "resources/btc.png", VOLATILITY, EAR));
+        availableCryptoCurrencies.add(new CryptoCurrency("SHIB",
+                300, "resources/btc.png", VOLATILITY, EAR));
+        availableCryptoCurrencies.add(new CryptoCurrency("Matic",
+                300, "resources/btc.png", VOLATILITY, EAR));
+        availableCryptoCurrencies.add(new CryptoCurrency("Cardano",
+                300, "resources/btc.png", VOLATILITY, EAR));
+        availableCryptoCurrencies.add(new CryptoCurrency("TFuel",
+                300, "resources/btc.png", VOLATILITY, EAR));
 
         CandleStick[] list = new CandleStick[20];
         list[0] = new CandleStick(200, 300, 500, 50,

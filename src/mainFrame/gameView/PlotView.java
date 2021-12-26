@@ -1,4 +1,4 @@
-package plot;
+package mainFrame.gameView;
 
 import Constants.ExCryptocurrencies;
 import Interfaces.Observer;
