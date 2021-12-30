@@ -21,8 +21,8 @@ public class MainFrame extends JFrame implements Observer, Runnable {
     private GameView gameView;
     private GameModel gameModel;
 
-    public MainFrame(GameModel model) {
-        this.gameModel = model;
+    public MainFrame() {
+
     }
 
     @Override
@@ -30,6 +30,9 @@ public class MainFrame extends JFrame implements Observer, Runnable {
         initMainFrame();
         gameModel = new GameModel();
         gameView = new GameView(gameModel);
+        gameModel.addObserver(gameView);
+        gameModel.addObserver(gameView.getPlotView());
+        (new Thread(gameModel)).start();
         this.add(gameView);
         this.pack();
         this.setVisible(true);

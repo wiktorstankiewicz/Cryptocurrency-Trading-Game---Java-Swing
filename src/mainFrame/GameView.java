@@ -19,16 +19,21 @@ public class GameView extends JPanel implements Observer {
     private GameModel gameModel;
 
     private ArrayList<JButton> buttons = new ArrayList<>();
+    private JTextArea gameTimeTextField;
+    private PlotView plotView;
 
     public GameView(GameModel gameModel) {
         this.gameModel = gameModel;
+        gameTimeTextField = new JTextArea();
         this.setLayout(new BorderLayout());
         this.setVisible(true);
         JButton bufforButton;
         for (CurrencyModel cm : gameModel.getCurrencyModels()) {
             bufforButton = new JButton(cm.getCryptoCurrency().getName());
             bufforButton.setSize(new Dimension(300, 50));
+            bufforButton.setFocusable(false);
             buttons.add(bufforButton);
+            bufforButton.setIcon(bufforButton.getIcon());
         }
         initBorderLayoutPanels();
     }
@@ -44,12 +49,37 @@ public class GameView extends JPanel implements Observer {
 
     private void initLeftPanel() {
         leftPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        leftPanel.setBackground(Color.blue);
-        leftPanel.setLayout(new GridLayout(8, 1, 1, 1));
-        for (JButton button : buttons) {
+        leftPanel.setBackground(Color.WHITE);
+        leftPanel.setLayout(new GridLayout(8, 2, 10, 10));
+        JPanel[][] grid = new JPanel[8][2];
+        /*for (JButton button : buttons) {
             button.setFocusable(false);
-            button.addActionListener(e -> button.setEnabled(false));
+            button.addActionListener(
+                    e -> {
+                        for(JButton button1: buttons){
+                            button1.setBackground(new Color(-1118482));
+                            button1.setEnabled(true);
+                        }
+                        button.setBackground(new Color(123));
+                        button.setEnabled(false);
+                    }
+                    );
             leftPanel.add(button);
+        }*/
+        //dodawanie przyciskow do 0 kolumny
+        for (int i = 0; i < buttons.size(); i++) {
+            grid[i][0] = new JPanel();
+            grid[i][1] = new JPanel();
+
+            grid[i][0].setBackground(null);
+            grid[i][1].setBackground(null);
+
+            leftPanel.add(grid[i][0]);
+            leftPanel.add(grid[i][1]);
+
+            grid[i][0].setLayout(new BorderLayout());
+            grid[i][0].add(buttons.get(i));
+            grid[i][1].add(new JLabel(gameModel.getCurrencyModels().get(i).getCryptoCurrency().getImageIcon()));
         }
         this.add(leftPanel, BorderLayout.WEST);
     }
@@ -67,33 +97,37 @@ public class GameView extends JPanel implements Observer {
 
         JTextField text1 = new JTextField("Stan konta");
         JTextField fiatBalance = new JTextField("$0");
-        JTextField text2 =  new JTextField("Bilans dnia");
-        JTextField dailyAbsoluteChange =  new JTextField("$-100");
-        JTextField dailyRelativeChange =  new JTextField("-25%");
+        JTextField text2 = new JTextField("Bilans dnia");
+        JTextField dailyAbsoluteChange = new JTextField("$-100");
+        JTextField dailyRelativeChange = new JTextField("-25%");
 
         grid[0].add(text1);
         grid[1].add(fiatBalance);
         grid[2].add(text2);
         grid[3].add(dailyAbsoluteChange);
-        grid[4].add(dailyRelativeChange);
+        grid[6].add(dailyRelativeChange);
         this.add(rightPanel, BorderLayout.EAST);
     }
 
     private void initBottomPanel() {
-        bottomPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         bottomPanel.setBackground(Color.red);
-        JPanel[] grid = new JPanel[8];
-        bottomPanel.setLayout(new GridLayout(2, 4, 1, 1));
-        for (int i = 0; i < grid.length; i++) {
-            grid[i] = new JPanel();
-            grid[i].add(new JTextArea(String.valueOf(i)));
-            bottomPanel.add(grid[i]);
+        bottomPanel.setBorder(BorderFactory.createLineBorder(bottomPanel.getBackground(), 10));
+        JPanel[][] grid = new JPanel[2][6];
+        bottomPanel.setLayout(new GridLayout(2, 5, 10, 10));
+        for (int row = 0; row < grid.length; row++) {
+            for (int col = 0; col < grid[0].length; col++) {
+                grid[row][col] = new JPanel();
+                //grid[i].add(new JTextArea(String.valueOf(i)));
+                grid[row][col].setLayout(new BorderLayout());
+                grid[row][col].setOpaque(false);
+                bottomPanel.add(grid[row][col]);
+            }
         }
-        JTextField ownedAmountText = new JTextField("Posiadana ilość: 93843,34");
+        JTextField ownedAmountText = new JTextField("Posiadana ilość:");
         ownedAmountText.setEditable(false);
         ownedAmountText.setFocusable(false);
         ownedAmountText.setHorizontalAlignment(JTextField.CENTER);
-        JTextField ownedAmountValueText = new JTextField("Wartość: $245023123,12");
+        JTextField ownedAmountValueText = new JTextField("Wartość:");
 
         ownedAmountValueText.setEditable(false);
         ownedAmountValueText.setFocusable(false);
@@ -101,10 +135,11 @@ public class GameView extends JPanel implements Observer {
         JButton buyButton = new JButton("ZAKUP");
         JButton sellButton = new JButton("SPRZEDAŻ");
 
-        /*bottomPanel.add(ownedAmountText);
-        bottomPanel.add(ownedAmountValueText);
-        bottomPanel.add(buyButton);
-        bottomPanel.add(sellButton);*/
+        grid[0][0].add(ownedAmountText);
+        grid[1][0].add(ownedAmountValueText);
+        grid[0][4].add(buyButton);
+        grid[1][4].add(sellButton);
+        grid[1][5].add(new JLabel(gameModel.getCurrencyModels().get(0).getCryptoCurrency().getImageIcon()));
         this.add(bottomPanel, BorderLayout.SOUTH);
     }
 
@@ -112,23 +147,120 @@ public class GameView extends JPanel implements Observer {
         topPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         topPanel.setBackground(Color.red);
         topPanel.setSize(0, 100);
+        JPanel[][] topPanelGrid = addJPanelsToGrid(1, 5, topPanel);
+        gameTimeTextField.setText(gameModel.getGameTime().toString());
+        gameTimeTextField.setEditable(false);
+
+        topPanelGrid[0][0].add(new JTextField("Fast forward"));
+        topPanelGrid[0][4].add(gameTimeTextField);
         this.add(topPanel, BorderLayout.NORTH);
     }
 
+    private JPanel[][] addJPanelsToGrid(int rows, int columns, JPanel panel) {
+        panel.setLayout(new GridLayout());
+        JPanel[][] grid = new JPanel[rows][columns];
+        for (int row = 0; row < grid.length; row++) {
+            for (int col = 0; col < grid[0].length; col++) {
+                grid[row][col] = new JPanel();
+                //grid[i].add(new JTextArea(String.valueOf(i)));
+                grid[row][col].setLayout(new BorderLayout());
+                grid[row][col].setOpaque(false);
+                panel.add(grid[row][col]);
+            }
+        }
+        return grid;
+    }
+
     private void initCenterPanel() {
-        PlotView plotView = new PlotView(gameModel);
+        plotView = new PlotView(gameModel);
         centerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         centerPanel.setBackground(Color.GREEN);
         this.add(centerPanel, BorderLayout.CENTER);
         centerPanel.setLayout(new BorderLayout());
         centerPanel.add(plotView, BorderLayout.CENTER);
         centerPanel.setPreferredSize(new Dimension(300, 300));
-        new Thread(plotView).start();
+        //new Thread(plotView).start();
         //plotView.run();
     }
 
     @Override
     public void update() {
+        gameTimeTextField.setText(gameModel.getGameTime().toString());
+        System.out.println("Updated gameview: " + gameTimeTextField.getText());
 
+        plotView.update();
+
+    }
+
+    public JPanel getCenterPanel() {
+        return centerPanel;
+    }
+
+    public void setCenterPanel(JPanel centerPanel) {
+        this.centerPanel = centerPanel;
+    }
+
+    public JPanel getTopPanel() {
+        return topPanel;
+    }
+
+    public void setTopPanel(JPanel topPanel) {
+        this.topPanel = topPanel;
+    }
+
+    public JPanel getBottomPanel() {
+        return bottomPanel;
+    }
+
+    public void setBottomPanel(JPanel bottomPanel) {
+        this.bottomPanel = bottomPanel;
+    }
+
+    public JPanel getRightPanel() {
+        return rightPanel;
+    }
+
+    public void setRightPanel(JPanel rightPanel) {
+        this.rightPanel = rightPanel;
+    }
+
+    public JPanel getLeftPanel() {
+        return leftPanel;
+    }
+
+    public void setLeftPanel(JPanel leftPanel) {
+        this.leftPanel = leftPanel;
+    }
+
+    public GameModel getGameModel() {
+        return gameModel;
+    }
+
+    public void setGameModel(GameModel gameModel) {
+        this.gameModel = gameModel;
+    }
+
+    public ArrayList<JButton> getButtons() {
+        return buttons;
+    }
+
+    public void setButtons(ArrayList<JButton> buttons) {
+        this.buttons = buttons;
+    }
+
+    public JTextArea getGameTimeTextField() {
+        return gameTimeTextField;
+    }
+
+    public void setGameTimeTextField(JTextArea gameTimeTextField) {
+        this.gameTimeTextField = gameTimeTextField;
+    }
+
+    public PlotView getPlotView() {
+        return plotView;
+    }
+
+    public void setPlotView(PlotView plotView) {
+        this.plotView = plotView;
     }
 }

@@ -1,6 +1,6 @@
 package Utilities;
 
-public class GameTime {
+public class GameTime implements Cloneable {
     private int days;//0-inf
     private int hours;//0-23
     private int minutes;//0-59
@@ -74,4 +74,10 @@ public class GameTime {
         setMinutes(getMinutes() + minutesToAdd);
         this.seconds = sum;
     }
+
+    public int valueOf(){
+        return seconds + 60*minutes + 3600*hours + 86400*days;
+    }
+
+
 }

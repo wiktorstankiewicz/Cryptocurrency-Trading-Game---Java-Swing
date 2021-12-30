@@ -3,7 +3,6 @@ package mainFrame.gameView;
 import Constants.ExCryptocurrencies;
 import Interfaces.Observer;
 import Utilities.CandleStick;
-import Utilities.CryptoCurrency;
 import model.CurrencyModel;
 import model.GameModel;
 
@@ -31,9 +30,6 @@ public class PlotView extends JPanel implements Observer, Runnable {
     public PlotView(GameModel gameModel) {
         this.gameModel = gameModel;
         initPlotView();
-        gameModel.setChoosenCurrencyModel(new CurrencyModel(0,
-                ExCryptocurrencies.availableCryptoCurrencies.get(0)));
-        gameModel.getChoosenCurrencyModel().setCandleStickArrayList(ExCryptocurrencies.exampleCandleStickArray);
     }
 
     //todo dodaj strategie wyswietlania wykresu
@@ -51,8 +47,9 @@ public class PlotView extends JPanel implements Observer, Runnable {
 
     private void paintCandleStick(int leftX, CandleStick candleStick, Graphics2D g2D, int width) {
         //todo
-        int y = candleStick.getOpenPriceHeight();
-        int height = candleStick.getClosePriceHeight() - candleStick.getOpenPriceHeight();
+       // double scale = 0.4;
+        int y = (int)(candleStick.getOpenPricePercentHeight() * (double) plotPanel.getHeight());
+        int height = (int) (((candleStick.getClosePricePercentHeight() - candleStick.getOpenPricePercentHeight()) * plotPanel.getHeight()));
         int middleOfCandle = leftX + width / 2;
         //drawing body of candle
         g2D.setColor(candleStick.getColor());
@@ -63,23 +60,30 @@ public class PlotView extends JPanel implements Observer, Runnable {
         }
 
         //drawing the candlewick
-        g2D.drawLine(middleOfCandle, candleStick.getMinPriceHeight(), middleOfCandle, candleStick.getMaxPriceHeight());
+        g2D.drawLine(middleOfCandle, (int) (candleStick.getMinPricePercentHeight() * plotPanel.getHeight()), middleOfCandle,
+                (int) (candleStick.getMaxPricePercentHeight() * plotPanel.getHeight()));
     }
 
-    private void paintAllCandleSticks(Graphics2D g2D){
+    private void paintAllCandleSticks(Graphics2D g2D) {
         ArrayList<CandleStick> candleStickArrayList = gameModel.getChoosenCurrencyModel().getCandleStickArrayList();
         int distanceFromLeftBorder = 1;
-        int candleStickWidth = plotPanel.getWidth()/ candleStickArrayList.size() - 1;
-        for(int i = 0 ; i<candleStickArrayList.size(); i++){
-            paintCandleStick(distanceFromLeftBorder + i*candleStickWidth,
-                    candleStickArrayList.get(i),g2D,candleStickWidth);
+        int candleStickWidth;
+        if(candleStickArrayList.size() == 1){
+            candleStickWidth = 50;
+        }
+        else{
+            candleStickWidth = plotPanel.getWidth() / candleStickArrayList.size();
+        }
+        for (int i = 0; i < candleStickArrayList.size(); i++) {
+            paintCandleStick(distanceFromLeftBorder + i * candleStickWidth,
+                    candleStickArrayList.get(i), g2D, candleStickWidth);
         }
 
     }
 
     public void initPlotView() {
         this.setLayout(new BorderLayout());
-        this.setSize(new Dimension(PLOT_VIEW_WIDTH,PLOT_VIEW_HEIGHT));
+        this.setSize(new Dimension(PLOT_VIEW_WIDTH, PLOT_VIEW_HEIGHT));
         this.add(timeLinePanel, BorderLayout.SOUTH);
         this.add(plotPanel, BorderLayout.CENTER);
         initTimeLinePanel();
@@ -89,12 +93,10 @@ public class PlotView extends JPanel implements Observer, Runnable {
     private void initPlotPanel() {
         plotPanel.setLayout(null);
         plotPanel.setBackground(Color.BLACK);
-        plotPanel.setSize(new Dimension(PLOT_VIEW_WIDTH, PLOT_VIEW_HEIGHT - TIME_LINE_PANEL_HEIGHT));
     }
 
     private void initTimeLinePanel() {
         plotPanel.setBackground(Color.green);
-        //plotPanel.setSize(newd)
     }
 
     @Override
@@ -103,9 +105,6 @@ public class PlotView extends JPanel implements Observer, Runnable {
     }
 
     private class PlotPanel extends JPanel {
-        public int time = 1;
-        public CryptoCurrency BTC = ExCryptocurrencies.availableCryptoCurrencies.get(0);
-        public CandleStick cs = new CandleStick(BTC);
 
         @Override
         public void paint(Graphics g) {
@@ -113,19 +112,11 @@ public class PlotView extends JPanel implements Observer, Runnable {
             Graphics2D g2D = (Graphics2D) g;
             g2D.scale(1, -1);
             g2D.translate(0, -getHeight());
-            gameModel.getChoosenCurrencyModel().getCryptoCurrency().getPriceCalculation().calculatePrice(1,gameModel.getChoosenCurrencyModel().getCryptoCurrency());
-            CandleStick last = gameModel.getChoosenCurrencyModel().getCandleStickArrayList().get(gameModel.getChoosenCurrencyModel().getCandleStickArrayList().size()-1);
-            last.update();
+
             paintAllCandleSticks(g2D);
+
             g2D.scale(1, -1);
             g2D.translate(0, getHeight());
-            /*for (int i = 0; i < ExCryptocurrencies.exampleCandleStickArray.size(); i++) {
-                paintCandleStick(i * CANDLE_STICK_WIDTH + 1,
-                        ExCryptocurrencies.exampleCandleStickArray.get(i),
-                        g2D);
-            }*/
-//            paintCandleStick(50,new CandleStick(100,200,50,250,
-//                     Color.GREEN),g2D);
         }
     }
 }

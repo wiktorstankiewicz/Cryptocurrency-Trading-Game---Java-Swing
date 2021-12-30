@@ -3,6 +3,7 @@ package Utilities;
 import Interfaces.CalculationOfPriceStrategy.GeometricBrownianMotion;
 import Interfaces.CalculationOfPriceStrategy.ICurrencyPriceCalculation;
 
+import javax.swing.*;
 import java.util.Random;
 
 public class CryptoCurrency {
@@ -13,6 +14,7 @@ public class CryptoCurrency {
     private double volatility;
     private double expectedAnnualReturn;
     private ICurrencyPriceCalculation priceCalculation;
+    private ImageIcon imageIcon;
     //S(t+dt) = St * exp( (eAR - vol^2/2)*dt + vol*RDN*sqrt(dt))
 
     public CryptoCurrency(String name, double basePrice,
@@ -25,6 +27,7 @@ public class CryptoCurrency {
         this.expectedAnnualReturn = expectedAnnualReturn;
         //todo example price calculation strategy
         this.priceCalculation = new GeometricBrownianMotion();
+        this.imageIcon = new ImageIcon(imgFilePath);
     }
 
     //todo strategia obliczania ceny
@@ -92,5 +95,13 @@ public class CryptoCurrency {
 
     public void setPriceCalculation(ICurrencyPriceCalculation priceCalculation) {
         this.priceCalculation = priceCalculation;
+    }
+
+    public ImageIcon getImageIcon() {
+        return imageIcon;
+    }
+
+    public void setImageIcon(ImageIcon imageIcon) {
+        this.imageIcon = imageIcon;
     }
 }

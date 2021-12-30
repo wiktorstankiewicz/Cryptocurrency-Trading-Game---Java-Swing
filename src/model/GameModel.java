@@ -3,9 +3,11 @@ package model;
 import Constants.ExCryptocurrencies;
 import Interfaces.Observable;
 import Interfaces.Observer;
+import Utilities.CandleStick;
+import Utilities.CryptoCurrency;
 import Utilities.GameTime;
-import mainFrame.GameView;
 
+import javax.swing.*;
 import java.util.ArrayList;
 
 public class GameModel implements Observable, Runnable {
@@ -18,35 +20,60 @@ public class GameModel implements Observable, Runnable {
 
     private GameTime gameTime;
 
-    private int timeStep = 1000; //co ile ms aktualizowac stan gry
+    private int gameSecondsPerFrame = 1; //how many game seconds passes in one frame
+    private int delay = 100; //how many ms it takes to refresh the frame
+    private int durationOfOneCandleStick = 5; // how many game seconds does one CandleStick represent
     private boolean isPaused = false;
 
     private double ownedFiat = 1000000; //USDT
     private double previousDayOwnedFiat = 0;
 
-    //private final int N_OF_CYRPTOCURRENCIES = 5;//
+    private Timer frameRefreshingTimer;
 
-    /**
-     * CurrencyModel class contains status of given CryptoCurrency
-     * in particular GameModel. Each currency used in the simulation has its own
-     * currency model.
-     */
+    //private final int N_OF_CYRPTOCURRENCIES = 5;//
 
     private ArrayList<CurrencyModel> currencyModels = new ArrayList<>();
     private CurrencyModel choosenCurrencyModel; // represents currency choosen by user
 
     public GameModel() {
-        for (int i = 0; i < ExCryptocurrencies.availableCryptoCurrencies.size(); i++) {
+        /*for (int i = 0; i < ExCryptocurrencies.availableCryptoCurrencies.size(); i++) {
             currencyModels.add(new CurrencyModel(i, ExCryptocurrencies.availableCryptoCurrencies.get(i)));
-        }
+        }*/
+        currencyModels.add(new CurrencyModel(0,ExCryptocurrencies.availableCryptoCurrencies.get(0)));
         choosenCurrencyModel = currencyModels.get(0);//default choosen currency is the 0th one
         gameTime = new GameTime(0,0,0,0);
-        this.addObserver(new GameView(this));
     }
 
     @Override
     public void run() {
+        frameRefreshingTimer = new Timer(delay, e ->{
+            updateGame();
+        });
+        frameRefreshingTimer.start();
+    }
 
+    private void updateGame() {
+        gameTime.addElapsedTime(gameSecondsPerFrame);
+        this.notifyObservers();
+        //System.out.println(choosenCurrencyModel.getCandleStickArrayList().size());
+        choosenCurrencyModel.update(gameSecondsPerFrame);
+        checkIfCreateCandleStick();
+    }
+
+    private void checkIfCreateCandleStick() {
+        int last = choosenCurrencyModel.getCandleStickArrayList().size() - 1;
+        CryptoCurrency cryptoCurrency = choosenCurrencyModel.getCryptoCurrency();
+        //System.out.println("time of creation: " + choosenCurrencyModel.getCandleStickArrayList().get(last).getOpenTime().valueOf());
+        if(gameTime.valueOf() - choosenCurrencyModel.getCandleStickArrayList().get(last).getOpenTime().valueOf()
+        >= durationOfOneCandleStick){
+            choosenCurrencyModel.getCandleStickArrayList().get(last).setClosed(true);
+            choosenCurrencyModel.getCandleStickArrayList().get(last).setCloseTime(gameTime);
+            //choosenCurrencyModel.getCandleStickArrayList().remove(0);
+            choosenCurrencyModel.getCandleStickArrayList().add(new CandleStick(cryptoCurrency,
+                    choosenCurrencyModel.getMinPriceInArrayList(),
+                    choosenCurrencyModel.getMaxPriceInArrayList(),
+                    gameTime));
+        }
     }
 
     @Override
@@ -82,12 +109,12 @@ public class GameModel implements Observable, Runnable {
         this.gameTime = gameTime;
     }
 
-    public int getTimeStep() {
-        return timeStep;
+    public int getGameSecondsPerFrame() {
+        return gameSecondsPerFrame;
     }
 
-    public void setTimeStep(int timeStep) {
-        this.timeStep = timeStep;
+    public void setGameSecondsPerFrame(int gameSecondsPerFrame) {
+        this.gameSecondsPerFrame = gameSecondsPerFrame;
     }
 
     public boolean isPaused() {
