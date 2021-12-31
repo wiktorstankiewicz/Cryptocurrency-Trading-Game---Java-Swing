@@ -12,7 +12,7 @@ public class ExCryptocurrencies {
     public static ArrayList<CryptoCurrency> availableCryptoCurrencies = new ArrayList<>();
     public static ArrayList<CandleStick> exampleCandleStickArray = new ArrayList<>();
     private static final double VOLATILITY = 0.01;
-    private static final double EAR = 0.00001;
+    private static final double EAR = 0.00000001;
     private static final Random generator = new Random();
 
     static {

@@ -7,6 +7,8 @@ import model.GameModel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 public class GameView extends JPanel implements Observer {
@@ -18,7 +20,8 @@ public class GameView extends JPanel implements Observer {
 
     private GameModel gameModel;
 
-    private ArrayList<JButton> buttons = new ArrayList<>();
+    private ArrayList<JButton> cryptoCurrencyButtons = new ArrayList<>();
+    private JButton fastForwardButton = new JButton();
     private JTextArea gameTimeTextField;
     private PlotView plotView;
 
@@ -32,9 +35,14 @@ public class GameView extends JPanel implements Observer {
             bufforButton = new JButton(cm.getCryptoCurrency().getName());
             bufforButton.setSize(new Dimension(300, 50));
             bufforButton.setFocusable(false);
-            buttons.add(bufforButton);
+            cryptoCurrencyButtons.add(bufforButton);
             bufforButton.setIcon(bufforButton.getIcon());
         }
+        fastForwardButton.setText(String.valueOf("x" + 1000 / gameModel.getDelay()));
+        fastForwardButton.addMouseListener(new FastForwardButtonPressed());
+        fastForwardButton.setFocusable(false);
+
+
         initBorderLayoutPanels();
     }
 
@@ -67,7 +75,7 @@ public class GameView extends JPanel implements Observer {
             leftPanel.add(button);
         }*/
         //dodawanie przyciskow do 0 kolumny
-        for (int i = 0; i < buttons.size(); i++) {
+        for (int i = 0; i < cryptoCurrencyButtons.size(); i++) {
             grid[i][0] = new JPanel();
             grid[i][1] = new JPanel();
 
@@ -78,7 +86,7 @@ public class GameView extends JPanel implements Observer {
             leftPanel.add(grid[i][1]);
 
             grid[i][0].setLayout(new BorderLayout());
-            grid[i][0].add(buttons.get(i));
+            grid[i][0].add(cryptoCurrencyButtons.get(i));
             grid[i][1].add(new JLabel(gameModel.getCurrencyModels().get(i).getCryptoCurrency().getImageIcon()));
         }
         this.add(leftPanel, BorderLayout.WEST);
@@ -112,9 +120,10 @@ public class GameView extends JPanel implements Observer {
     private void initBottomPanel() {
         bottomPanel.setBackground(Color.red);
         bottomPanel.setBorder(BorderFactory.createLineBorder(bottomPanel.getBackground(), 10));
-        JPanel[][] grid = new JPanel[2][6];
-        bottomPanel.setLayout(new GridLayout(2, 5, 10, 10));
-        for (int row = 0; row < grid.length; row++) {
+        JPanel[][] grid;
+        bottomPanel.setLayout(new GridLayout(2, 6, 10, 10));
+        grid = addJPanelsToGrid(2, 6, bottomPanel);
+        /*for (int row = 0; row < grid.length; row++) {
             for (int col = 0; col < grid[0].length; col++) {
                 grid[row][col] = new JPanel();
                 //grid[i].add(new JTextArea(String.valueOf(i)));
@@ -122,7 +131,8 @@ public class GameView extends JPanel implements Observer {
                 grid[row][col].setOpaque(false);
                 bottomPanel.add(grid[row][col]);
             }
-        }
+        }*/
+
         JTextField ownedAmountText = new JTextField("Posiadana ilość:");
         ownedAmountText.setEditable(false);
         ownedAmountText.setFocusable(false);
@@ -147,17 +157,20 @@ public class GameView extends JPanel implements Observer {
         topPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         topPanel.setBackground(Color.red);
         topPanel.setSize(0, 100);
+        topPanel.setLayout(new GridLayout(1, 5, 1, 1));
         JPanel[][] topPanelGrid = addJPanelsToGrid(1, 5, topPanel);
         gameTimeTextField.setText(gameModel.getGameTime().toString());
         gameTimeTextField.setEditable(false);
 
-        topPanelGrid[0][0].add(new JTextField("Fast forward"));
+        topPanelGrid[0][0].add(fastForwardButton);
         topPanelGrid[0][4].add(gameTimeTextField);
         this.add(topPanel, BorderLayout.NORTH);
     }
 
     private JPanel[][] addJPanelsToGrid(int rows, int columns, JPanel panel) {
-        panel.setLayout(new GridLayout());
+        if (!(panel.getLayout() instanceof GridLayout)) {
+            throw new IllegalArgumentException("Panel should have grid layout");
+        }
         JPanel[][] grid = new JPanel[rows][columns];
         for (int row = 0; row < grid.length; row++) {
             for (int col = 0; col < grid[0].length; col++) {
@@ -240,12 +253,12 @@ public class GameView extends JPanel implements Observer {
         this.gameModel = gameModel;
     }
 
-    public ArrayList<JButton> getButtons() {
-        return buttons;
+    public ArrayList<JButton> getCryptoCurrencyButtons() {
+        return cryptoCurrencyButtons;
     }
 
-    public void setButtons(ArrayList<JButton> buttons) {
-        this.buttons = buttons;
+    public void setCryptoCurrencyButtons(ArrayList<JButton> cryptoCurrencyButtons) {
+        this.cryptoCurrencyButtons = cryptoCurrencyButtons;
     }
 
     public JTextArea getGameTimeTextField() {
@@ -263,4 +276,57 @@ public class GameView extends JPanel implements Observer {
     public void setPlotView(PlotView plotView) {
         this.plotView = plotView;
     }
+
+    private class FastForwardButtonPressed implements MouseListener {
+        private int position = 0;
+        private int[] delays = {1000, 500, 200, 100, 50, 20, 10};
+
+        /*@Override
+        public void actionPerformed(ActionEvent e) {
+            if(e.)
+            position = (position + 1) % delays.length;
+            gameModel.setDelay(delays[position]);
+            fastForwardButton.setText("x " + 1000/delays[position]);
+        }*/
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            fastForwardButton.setSelected(true);
+
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            int direction;
+            if (SwingUtilities.isRightMouseButton(e)){
+                direction = -1;
+            }else{
+                direction = 1;
+            }
+            if(position == 0 && direction == -1){
+                position = delays.length-1;
+            }else{
+                position = (position + direction) % delays.length;
+            }
+            gameModel.setDelay(delays[position]);
+            fastForwardButton.setText("x " + 1000 / delays[position]);
+            fastForwardButton.setSelected(false);
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+
+        }
+    }
 }
+

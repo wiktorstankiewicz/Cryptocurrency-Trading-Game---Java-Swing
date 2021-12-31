@@ -21,7 +21,7 @@ public class GameModel implements Observable, Runnable {
     private GameTime gameTime;
 
     private int gameSecondsPerFrame = 1; //how many game seconds passes in one frame
-    private int delay = 100; //how many ms it takes to refresh the frame
+    private int delay = 1000; //how many ms it takes to refresh the frame
     private int durationOfOneCandleStick = 5; // how many game seconds does one CandleStick represent
     private boolean isPaused = false;
 
@@ -155,5 +155,30 @@ public class GameModel implements Observable, Runnable {
 
     public void setChoosenCurrencyModel(CurrencyModel choosenCurrencyModel) {
         this.choosenCurrencyModel = choosenCurrencyModel;
+    }
+
+    public int getDelay() {
+        return delay;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
+        frameRefreshingTimer.setDelay(delay);
+    }
+
+    public int getDurationOfOneCandleStick() {
+        return durationOfOneCandleStick;
+    }
+
+    public void setDurationOfOneCandleStick(int durationOfOneCandleStick) {
+        this.durationOfOneCandleStick = durationOfOneCandleStick;
+    }
+
+    public Timer getFrameRefreshingTimer() {
+        return frameRefreshingTimer;
+    }
+
+    public void setFrameRefreshingTimer(Timer frameRefreshingTimer) {
+        this.frameRefreshingTimer = frameRefreshingTimer;
     }
 }
