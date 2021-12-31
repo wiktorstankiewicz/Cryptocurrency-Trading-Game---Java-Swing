@@ -27,6 +27,7 @@ public class MainFrame extends JFrame implements Observer, Runnable {
 
     @Override
     public void run() {
+
         initMainFrame();
         gameModel = new GameModel();
         gameView = new GameView(gameModel);

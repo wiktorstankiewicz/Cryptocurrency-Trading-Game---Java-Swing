@@ -49,6 +49,7 @@ public class GameModel implements Observable, Runnable {
         frameRefreshingTimer = new Timer(delay, e ->{
             updateGame();
         });
+        frameRefreshingTimer.setInitialDelay(10);
         frameRefreshingTimer.start();
     }
 

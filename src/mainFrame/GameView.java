@@ -7,6 +7,8 @@ import model.GameModel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ public class GameView extends JPanel implements Observer {
 
     private ArrayList<JButton> cryptoCurrencyButtons = new ArrayList<>();
     private JButton fastForwardButton = new JButton();
+    private JButton pauseButton = new JButton();
     private JTextArea gameTimeTextField;
     private PlotView plotView;
 
@@ -41,6 +44,11 @@ public class GameView extends JPanel implements Observer {
         fastForwardButton.setText(String.valueOf("x" + 1000 / gameModel.getDelay()));
         fastForwardButton.addMouseListener(new FastForwardButtonPressed());
         fastForwardButton.setFocusable(false);
+
+        pauseButton.setText("Pause");
+        pauseButton.setForeground(Color.BLACK);
+        pauseButton.setFocusable(false);
+        pauseButton.addActionListener(new PauseButtonPressed());
 
 
         initBorderLayoutPanels();
@@ -162,7 +170,8 @@ public class GameView extends JPanel implements Observer {
         gameTimeTextField.setText(gameModel.getGameTime().toString());
         gameTimeTextField.setEditable(false);
 
-        topPanelGrid[0][0].add(fastForwardButton);
+        topPanelGrid[0][0].add(pauseButton);
+        topPanelGrid[0][1].add(fastForwardButton);
         topPanelGrid[0][4].add(gameTimeTextField);
         this.add(topPanel, BorderLayout.NORTH);
     }
@@ -326,6 +335,21 @@ public class GameView extends JPanel implements Observer {
         @Override
         public void mouseExited(MouseEvent e) {
 
+        }
+    }
+
+    private class PauseButtonPressed implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(gameModel.getFrameRefreshingTimer().isRunning()){
+                gameModel.getFrameRefreshingTimer().stop();
+                pauseButton.setText("PAUSED");
+                pauseButton.setForeground(Color.RED);
+                return;
+            }
+            gameModel.getFrameRefreshingTimer().restart();
+            pauseButton.setText("Pause");
+            pauseButton.setForeground(Color.BLACK);
         }
     }
 }

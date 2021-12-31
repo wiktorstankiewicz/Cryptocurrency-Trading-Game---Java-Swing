@@ -66,7 +66,7 @@ public class PlotView extends JPanel implements Observer, Runnable {
 
     private void paintAllCandleSticks(Graphics2D g2D) {
         ArrayList<CandleStick> candleStickArrayList = gameModel.getChoosenCurrencyModel().getCandleStickArrayList();
-        int distanceFromLeftBorder = 1;
+        int distanceFromLeftBorder = 0;
         int candleStickWidth;
         if(candleStickArrayList.size() == 1){
             candleStickWidth = 50;
