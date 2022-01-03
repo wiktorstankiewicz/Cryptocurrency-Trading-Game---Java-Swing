@@ -41,7 +41,7 @@ public class GameView extends JPanel implements Observer {
             cryptoCurrencyButtons.add(bufforButton);
             bufforButton.setIcon(bufforButton.getIcon());
         }
-        fastForwardButton.setText(String.valueOf("x" + 1000 / gameModel.getDelay()));
+        fastForwardButton.setText("x" + 1000 / gameModel.getDelay());
         fastForwardButton.addMouseListener(new FastForwardButtonPressed());
         fastForwardButton.setFocusable(false);
 

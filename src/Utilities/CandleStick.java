@@ -51,8 +51,7 @@ public class CandleStick {
         assert (valueToMap >= min);
         assert (valueToMap <= max);
         assert (min < max);
-        double mappedValue = ((valueToMap - min) / (max - min)) * (UPPER_BOUND - LOWER_BOUND) + LOWER_BOUND;
-        return mappedValue;
+        return ((valueToMap - min) / (max - min)) * (UPPER_BOUND - LOWER_BOUND) + LOWER_BOUND;
 
     }
 
@@ -153,8 +152,7 @@ public class CandleStick {
     }
 
     public void setCloseTime(GameTime closeTime) {
-        this.closeTime = new GameTime(closeTime.getDays(), closeTime.getHours(), closeTime.getMinutes()
-                , closeTime.getSeconds());
+        this.closeTime = closeTime.clone();
     }
 
     public GameTime getOpenTime() {

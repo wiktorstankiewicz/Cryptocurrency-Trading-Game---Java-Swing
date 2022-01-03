@@ -83,5 +83,10 @@ public class GameTime implements Cloneable {
         return seconds + 60*minutes + 3600*hours + 86400*days;
     }
 
+    @Override
+    public GameTime clone(){
+        return new GameTime(days, hours, minutes, seconds);
+    }
+
 
 }
