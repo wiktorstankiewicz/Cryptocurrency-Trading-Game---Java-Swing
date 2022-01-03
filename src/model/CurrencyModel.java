@@ -1,68 +1,28 @@
 package model;
 
-import Constants.ExCryptocurrencies;
 import Utilities.CandleStick;
 import Utilities.CryptoCurrency;
 import Utilities.GameTime;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class CurrencyModel {
-    private int index;
-    private CryptoCurrency cryptoCurrency;
     private double ownedAmount;
-    private ArrayList<CandleStick> candleStickArrayList = new ArrayList<>();; //history of prices represented by candlesticks
-    private double averagePrice;
+    private ArrayList<CandleStick> candleStickArrayList = new ArrayList<>(); //history of prices represented by candlesticks
+    private CryptoCurrency cryptoCurrency;
     private double dailyPercentChange;
     private double dailyAbsoluteChange;
-    private double minPriceInArrayList;
-    private double maxPriceInArrayList;
 
-    public CurrencyModel(int index, CryptoCurrency cryptoCurrency) {
-        this.index = index;
+    private PacketToDraw packetToDraw;
+
+    public CurrencyModel( CryptoCurrency cryptoCurrency) {
         this.cryptoCurrency = cryptoCurrency;
         ownedAmount = 0;
-        candleStickArrayList.add(new CandleStick(cryptoCurrency,cryptoCurrency.getCurrentPrice(),cryptoCurrency.getCurrentPrice(),new GameTime(0,0,0,0)));
-        System.out.println("size " + candleStickArrayList.size());
-    }
-
-    public void calculateMinAndMaxPriceInArrayList(){
-        minPriceInArrayList = Double.MAX_VALUE;
-        maxPriceInArrayList = Double.MIN_VALUE;
-
-        for(CandleStick cs: candleStickArrayList){
-            if(cs.getMinPrice() < minPriceInArrayList){
-                minPriceInArrayList = cs.getMinPrice();
-            }
-            if(cs.getMaxPrice() > maxPriceInArrayList){
-                maxPriceInArrayList = cs.getMaxPrice();
-            }
-        }
-    }
-
-    //setters and getters
-    public int getIndex() {
-        return index;
-    }
-
-    public void setIndex(int index) {
-        this.index = index;
     }
 
     public CryptoCurrency getCryptoCurrency() {
         return cryptoCurrency;
-    }
-
-    public void setCryptoCurrency(CryptoCurrency cryptoCurrency) {
-        this.cryptoCurrency = cryptoCurrency;
-    }
-
-    public double getOwnedAmount() {
-        return ownedAmount;
-    }
-
-    public void setOwnedAmount(double ownedAmount) {
-        this.ownedAmount = ownedAmount;
     }
 
     public ArrayList<CandleStick> getCandleStickArrayList() {
@@ -73,31 +33,15 @@ public class CurrencyModel {
         this.candleStickArrayList = candleStickArrayList;
     }
 
-    public void update(int timePassed) {
-        cryptoCurrency.getPriceCalculation().calculatePrice(timePassed,cryptoCurrency);
-        calculateMinAndMaxPriceInArrayList();
+    public void update(int timePassed, int amountToDraw) {
+        cryptoCurrency.getPriceCalculation().calculatePrice(timePassed, cryptoCurrency);
+        candleStickArrayList.get(candleStickArrayList.size() - 1).updatePrices();
+        PacketToDraw packetToDraw = new PacketToDraw(20);
+        //candleStickArrayList.get(candleStickArrayList.size() - 1).mapPriceValues(minPriceInArrayList,maxPriceInArrayList);
         assert (candleStickArrayList.size() > 0);
-        if(minPriceInArrayList == maxPriceInArrayList){
-            candleStickArrayList.get(candleStickArrayList.size()-1).update(candleStickArrayList);
-        }
-        candleStickArrayList.get(candleStickArrayList.size()-1).update(candleStickArrayList);
-        fitToSize();
 
     }
 
-    private void fitToSize() {
-        for(CandleStick cs: candleStickArrayList){
-            cs.mapPriceValues(minPriceInArrayList,maxPriceInArrayList);
-        }
-    }
-
-    public double getAveragePrice() {
-        return averagePrice;
-    }
-
-    public void setAveragePrice(double averagePrice) {
-        this.averagePrice = averagePrice;
-    }
 
     public double getDailyPercentChange() {
         return dailyPercentChange;
@@ -115,19 +59,60 @@ public class CurrencyModel {
         this.dailyAbsoluteChange = dailyAbsoluteChange;
     }
 
-    public double getMinPriceInArrayList() {
-        return minPriceInArrayList;
+    public CandleStick lastCandleStick() {
+        return candleStickArrayList.get(candleStickArrayList.size() - 1);
     }
 
-    public void setMinPriceInArrayList(double minPriceInArrayList) {
-        this.minPriceInArrayList = minPriceInArrayList;
+    public PacketToDraw getPacketToDraw(int amountToDraw){
+        return new PacketToDraw(amountToDraw);
     }
 
-    public double getMaxPriceInArrayList() {
-        return maxPriceInArrayList;
-    }
+    public class PacketToDraw{
+        ArrayList<CandleStick> candleSticks = new ArrayList<>();
+        double minPriceInArrayList;
+        double maxPriceInArrayList;
 
-    public void setMaxPriceInArrayList(double maxPriceInArrayList) {
-        this.maxPriceInArrayList = maxPriceInArrayList;
+        public PacketToDraw(int amountToDraw){
+            for(int i = Math.max(0, candleStickArrayList.size()-amountToDraw); i<candleStickArrayList.size(); i++){
+                candleSticks.add(candleStickArrayList.get(i));
+            }
+            fitToSize();
+        }
+
+        private void calculateMinAndMaxPriceInArrayList() {
+            minPriceInArrayList = Double.MAX_VALUE;
+            maxPriceInArrayList = Double.MIN_VALUE;
+            for (CandleStick cs : candleSticks) {
+                if (cs.getMinPrice() < minPriceInArrayList) {
+                    minPriceInArrayList = cs.getMinPrice();
+                }
+                if (cs.getMaxPrice() > maxPriceInArrayList) {
+                    maxPriceInArrayList = cs.getMaxPrice();
+                }
+            }
+        }
+
+        private void fitToSize() {
+            calculateMinAndMaxPriceInArrayList();
+            for (CandleStick cs : candleSticks) {
+                cs.mapPriceValues(minPriceInArrayList, maxPriceInArrayList);
+            }
+        }
+
+        public ArrayList<CandleStick> getCandleSticks() {
+            return candleSticks;
+        }
+
+
+        public double getMinPriceInArrayList() {
+            return minPriceInArrayList;
+        }
+
+
+        public double getMaxPriceInArrayList() {
+            return maxPriceInArrayList;
+        }
+
+
     }
 }

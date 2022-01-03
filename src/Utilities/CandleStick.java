@@ -24,24 +24,35 @@ public class CandleStick {
     private boolean closed = false;
 
     //Mapping parameters
-    private static final double LOWER_BOUND = 0f;
-    private static final double UPPER_BOUND = 1f;
+    private static final double LOWER_BOUND = 0d;
+    private static final double UPPER_BOUND = 1d;
 
     public void mapPriceValues(double minPriceInArray, double maxPriceInArray) {
-        if(minPriceInArray == maxPriceInArray){
-            maxPriceInArray = minPriceInArray*1.2f;
-        }
+        /*if (minPriceInArray == maxPriceInArray) {
+            maxPriceInArray = minPriceInArray * 1.2d;
+        }*/
+        assert (minPriceInArray < maxPriceInArray);
         openPricePercentHeight = linearMapping(openPrice, minPriceInArray, maxPriceInArray);
         closePricePercentHeight = linearMapping(closePrice, minPriceInArray, maxPriceInArray);
         maxPricePercentHeight = linearMapping(maxPrice, minPriceInArray, maxPriceInArray);
         minPricePercentHeight = linearMapping(minPrice, minPriceInArray, maxPriceInArray);
+        assert (openPricePercentHeight >= 0);
+        assert (closePricePercentHeight >= 0);
+        assert (maxPricePercentHeight >= 0);
+        assert (minPricePercentHeight >= 0);
+
+        assert (openPricePercentHeight <= 1);
+        assert (closePricePercentHeight <= 1);
+        assert (maxPricePercentHeight <= 1);
+        assert (minPricePercentHeight <= 1);
     }
 
     private double linearMapping(double valueToMap, double min, double max) throws IllegalArgumentException {
-        if(min >= max){
-            throw new IllegalArgumentException("min and max can't be equal");
-        }
-        return ((valueToMap - min) / (max - min)) * (UPPER_BOUND - LOWER_BOUND) + LOWER_BOUND;
+        assert (valueToMap >= min);
+        assert (valueToMap <= max);
+        assert (min < max);
+        double mappedValue = ((valueToMap - min) / (max - min)) * (UPPER_BOUND - LOWER_BOUND) + LOWER_BOUND;
+        return mappedValue;
 
     }
 
@@ -49,54 +60,36 @@ public class CandleStick {
                        double closePriceUSDT,
                        double maxPriceUSDT,
                        double minPriceUSDT,
-                       double minPriceInArrayList,
-                       double maxPriceInArrayList,
                        CryptoCurrency cryptoCurrency,
                        GameTime openTime) {
 
-        if (maxPriceUSDT < minPriceUSDT){
+        if (maxPriceUSDT < minPriceUSDT) {
             throw new IllegalArgumentException("max price cant be smaller than min price");
-        };
-
+        }
         this.openPrice = openPriceUSDT;
         this.closePrice = closePriceUSDT;
         this.maxPrice = maxPriceUSDT;
         this.minPrice = minPriceUSDT;
-
-        mapPriceValues(minPriceInArrayList, maxPriceInArrayList);
         this.cryptoCurrency = cryptoCurrency;
         this.openTime = new GameTime(openTime.getDays(), openTime.getHours(), openTime.getMinutes()
                 , openTime.getSeconds());
     }
 
-    public CandleStick(CryptoCurrency cryptoCurrency, double minPriceInArrayList, double maxPriceInArrayList, GameTime openTime) {
+    public CandleStick(CryptoCurrency cryptoCurrency, GameTime openTime) {
         this(cryptoCurrency.getCurrentPrice(),
                 cryptoCurrency.getCurrentPrice(),
                 cryptoCurrency.getCurrentPrice(),
                 cryptoCurrency.getCurrentPrice(),
-                minPriceInArrayList,
-                maxPriceInArrayList,
                 cryptoCurrency,
                 openTime);
     }
 
-    public void update(ArrayList<CandleStick> candleStickArrayList) {
-        double minPriceInArray = candleStickArrayList.stream().min((CandleStick cs1,CandleStick cs2) -> (int) (cs2.getMinPrice()-cs1.getMinPrice())).get().getMinPrice();
-        double maxPriceInArray = candleStickArrayList.stream().max((CandleStick cs1,CandleStick cs2) -> (int) (cs1.getMaxPrice()-cs2.getMaxPrice())).get().getMaxPrice();
+    public void updatePrices() {
         double newPrice = cryptoCurrency.getCurrentPrice();
         //todo zmapowac cene krypto na wspolrzedne wykresu
-        if(newPrice > maxPriceInArray){
-            maxPriceInArray = newPrice;
-        }
-
-        if(newPrice < minPriceInArray){
-            minPriceInArray = newPrice;
-        }
         this.closePrice = newPrice;
-        this.maxPrice = Math.max(newPrice, maxPrice);
-        this.minPrice = Math.min(newPrice, minPrice);
-        mapPriceValues(minPriceInArray, maxPriceInArray);
-        System.out.println(this);
+        this.maxPrice = Math.max(newPrice, this.maxPrice);
+        this.minPrice = Math.min(newPrice, this.minPrice);
     }
 
     public void close(GameTime gameTime) {
@@ -181,7 +174,7 @@ public class CandleStick {
     }
 
     public void setOpenPricePercentHeight(double openPricePercentHeight) {
-        if(openPricePercentHeight <0){
+        if (openPricePercentHeight < 0) {
             throw new IllegalArgumentException("openPricePercentHeight should be positive");
         }
         this.openPricePercentHeight = openPricePercentHeight;

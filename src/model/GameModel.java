@@ -25,6 +25,8 @@ public class GameModel implements Observable, Runnable {
     private int durationOfOneCandleStick = 5; // how many game seconds does one CandleStick represent
     private boolean isPaused = false;
 
+    private int amountToDraw = 20;
+
     private double ownedFiat = 1000000; //USDT
     private double previousDayOwnedFiat = 0;
 
@@ -39,14 +41,14 @@ public class GameModel implements Observable, Runnable {
         /*for (int i = 0; i < ExCryptocurrencies.availableCryptoCurrencies.size(); i++) {
             currencyModels.add(new CurrencyModel(i, ExCryptocurrencies.availableCryptoCurrencies.get(i)));
         }*/
-        currencyModels.add(new CurrencyModel(0,ExCryptocurrencies.availableCryptoCurrencies.get(0)));
+        currencyModels.add(new CurrencyModel(ExCryptocurrencies.availableCryptoCurrencies.get(0)));
         choosenCurrencyModel = currencyModels.get(0);//default choosen currency is the 0th one
-        gameTime = new GameTime(0,0,0,0);
+        gameTime = new GameTime();
     }
 
     @Override
     public void run() {
-        frameRefreshingTimer = new Timer(delay, e ->{
+        frameRefreshingTimer = new Timer(delay, e -> {
             updateGame();
         });
         frameRefreshingTimer.setInitialDelay(10);
@@ -55,24 +57,26 @@ public class GameModel implements Observable, Runnable {
 
     private void updateGame() {
         gameTime.addElapsedTime(gameSecondsPerFrame);
-        this.notifyObservers();
         //System.out.println(choosenCurrencyModel.getCandleStickArrayList().size());
-        choosenCurrencyModel.update(gameSecondsPerFrame);
         checkIfCreateCandleStick();
+        choosenCurrencyModel.update(gameSecondsPerFrame, amountToDraw);
+        this.notifyObservers();
     }
 
     private void checkIfCreateCandleStick() {
-        int last = choosenCurrencyModel.getCandleStickArrayList().size() - 1;
         CryptoCurrency cryptoCurrency = choosenCurrencyModel.getCryptoCurrency();
+        if (choosenCurrencyModel.getCandleStickArrayList().size() == 0) {
+            choosenCurrencyModel.getCandleStickArrayList().add(new CandleStick(cryptoCurrency,
+                    gameTime));
+            return;
+        }
+        int last = choosenCurrencyModel.getCandleStickArrayList().size() - 1;
         //System.out.println("time of creation: " + choosenCurrencyModel.getCandleStickArrayList().get(last).getOpenTime().valueOf());
-        if(gameTime.valueOf() - choosenCurrencyModel.getCandleStickArrayList().get(last).getOpenTime().valueOf()
-        >= durationOfOneCandleStick){
+        if (gameTime.valueOf() - choosenCurrencyModel.getCandleStickArrayList().get(last).getOpenTime().valueOf()
+                >= durationOfOneCandleStick) {
             choosenCurrencyModel.getCandleStickArrayList().get(last).setClosed(true);
             choosenCurrencyModel.getCandleStickArrayList().get(last).setCloseTime(gameTime);
-            //choosenCurrencyModel.getCandleStickArrayList().remove(0);
             choosenCurrencyModel.getCandleStickArrayList().add(new CandleStick(cryptoCurrency,
-                    choosenCurrencyModel.getMinPriceInArrayList(),
-                    choosenCurrencyModel.getMaxPriceInArrayList(),
                     gameTime));
         }
     }
@@ -182,4 +186,5 @@ public class GameModel implements Observable, Runnable {
     public void setFrameRefreshingTimer(Timer frameRefreshingTimer) {
         this.frameRefreshingTimer = frameRefreshingTimer;
     }
+
 }

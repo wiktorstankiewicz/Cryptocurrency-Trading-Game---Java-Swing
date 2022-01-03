@@ -208,10 +208,6 @@ public class GameView extends JPanel implements Observer {
     @Override
     public void update() {
         gameTimeTextField.setText(gameModel.getGameTime().toString());
-        System.out.println("Updated gameview: " + gameTimeTextField.getText());
-
-        plotView.update();
-
     }
 
     public JPanel getCenterPanel() {

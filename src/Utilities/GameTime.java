@@ -17,6 +17,10 @@ public class GameTime implements Cloneable {
         this.seconds = seconds;
     }
 
+    public GameTime(){
+        this(0,0,0,0);
+    }
+
     @Override
     public String toString() {
         return days + " : " + hours + " : " + minutes + " : " + seconds + "\n";

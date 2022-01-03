@@ -33,7 +33,8 @@ public class MainFrame extends JFrame implements Observer, Runnable {
         gameView = new GameView(gameModel);
         gameModel.addObserver(gameView);
         gameModel.addObserver(gameView.getPlotView());
-        (new Thread(gameModel)).start();
+        //(new Thread(gameModel)).start();
+        gameModel.run();
         this.add(gameView);
         this.pack();
         this.setVisible(true);
