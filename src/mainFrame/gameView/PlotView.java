@@ -6,15 +6,18 @@ import model.CurrencyModel;
 import model.GameModel;
 
 import javax.swing.*;
-import javax.swing.plaf.basic.BasicBorders;
 import java.awt.*;
+import java.io.Serial;
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import static java.lang.Math.abs;
 
-public class PlotView extends JPanel implements Observer {
+public class PlotView extends JPanel implements Observer, Serializable {
     private static final int CANDLE_STICK_WIDTH = 50;
+    @Serial
+    private static final long serialVersionUID = -6105297773901533785L;
     private GameModel gameModel;
 
     private JPanel timeLinePanel = new JPanel();
@@ -25,13 +28,16 @@ public class PlotView extends JPanel implements Observer {
     private int PLOT_VIEW_HEIGHT = 100;
     private int PLOT_VIEW_WIDTH = 500;
 
-    private JTextArea currentPrice = new JTextArea();
+    private JTextArea currentPrice;
     private JTextArea openPrice = new JTextArea();
     private JTextArea minPrice = new JTextArea();
     private JTextArea maxPrice = new JTextArea();
 
     public PlotView(GameModel gameModel) {
         this.gameModel = gameModel;
+        currentPrice = new JTextArea();
+        priceAxisPanel = new AxisPanel();
+        priceAxisPanel.add(currentPrice);
         initPlotView();
 
     }
@@ -60,15 +66,16 @@ public class PlotView extends JPanel implements Observer {
     private void paintAllCandleSticks(Graphics2D g2D) {
         CurrencyModel.PacketToDraw packetToDraw = gameModel.getChoosenCurrencyModel().getPacketToDraw(numberOfCandleSticksToPaint);
         ArrayList<CandleStick> arrayListToDraw = packetToDraw.getCandleSticks();
-        CandleStick lastCandleStick = arrayListToDraw.get(arrayListToDraw.size()-1);
+        CandleStick lastCandleStick = arrayListToDraw.get(arrayListToDraw.size() - 1);
 
-        int candleStickWidth = plotPanel.getWidth()/arrayListToDraw.size();
-        int middleOfLastCandleStick = arrayListToDraw.size()*candleStickWidth - candleStickWidth/2;
+        int candleStickWidth = plotPanel.getWidth() / arrayListToDraw.size();
+        int middleOfLastCandleStick = arrayListToDraw.size() * candleStickWidth - candleStickWidth / 2;
 
         //painting bodys of candlesticks
-        for(int i = 0; i<arrayListToDraw.size(); i++){
-            paintCandleStick(i*candleStickWidth,arrayListToDraw.get(i),g2D,candleStickWidth);
+        for (int i = 0; i < arrayListToDraw.size(); i++) {
+            paintCandleStick(i * candleStickWidth, arrayListToDraw.get(i), g2D, candleStickWidth);
         }
+        priceAxisPanel.update(lastCandleStick);
         paintCurrentPriceLine(g2D, lastCandleStick, middleOfLastCandleStick);
     }
 
@@ -78,14 +85,7 @@ public class PlotView extends JPanel implements Observer {
         g2D.drawLine(0, (int) (lastCandleStick.getClosePricePercentHeight() * (double) plotPanel.getHeight()),
                 middleOfLastCandleStick,
                 (int) (lastCandleStick.getClosePricePercentHeight() * (double) plotPanel.getHeight()));
-        plotPanel.add(currentPrice);
-        currentPrice.setBounds(0, plotPanel.getHeight() - (int) (lastCandleStick.getClosePricePercentHeight() * (double) plotPanel.getHeight()),
-                300,
-                50);
-        DecimalFormat dec = new DecimalFormat("#0.00");
-        currentPrice.setText("$ " + dec.format(lastCandleStick.getClosePrice()));
-        currentPrice.setForeground(Color.WHITE);
-        currentPrice.setOpaque(false);
+
     }
 
     public void initPlotView() {
@@ -94,15 +94,13 @@ public class PlotView extends JPanel implements Observer {
         initPlotPanel();
         this.setLayout(new BorderLayout());
         this.setSize(new Dimension(PLOT_VIEW_WIDTH, PLOT_VIEW_HEIGHT));
-        this.add(timeLinePanel, BorderLayout.SOUTH);
+        //this.add(timeLinePanel, BorderLayout.SOUTH);
         this.add(plotPanel, BorderLayout.CENTER);
         this.add(priceAxisPanel, BorderLayout.WEST);
     }
 
     private void initPriceAxisPanel() {
         priceAxisPanel = new AxisPanel();
-
-
     }
 
     private void initPlotPanel() {
@@ -146,28 +144,45 @@ public class PlotView extends JPanel implements Observer {
         private JPanel[] grid = new JPanel[amountOfLabels];
 
         public AxisPanel() {
-            this.setLayout(new GridLayout(amountOfLabels,1,0,0));
-            initLabelArrayList();
-            for (int i = grid.length - 1; i > 0; i--) {
+            this.setLayout(null);
+            this.setPreferredSize(new Dimension(50, 300));
+            this.setBackground(Color.BLACK);
+
+            currentPrice.setForeground(Color.WHITE);
+            currentPrice.setOpaque(false);
+            //initLabelArrayList();
+            /*for (int i = grid.length - 1; i >= 0; i--) {
                 grid[i] = new JPanel();
-                grid[i].add(labelArrayList[i]);
+                grid[i].setLayout(new BorderLayout());
+                grid[i].add(labelArrayList[i], BorderLayout.CENTER);
+                grid[i].setBorder(BorderFactory.createLineBorder(Color.blue,1));
                 this.add(grid[i]);
-            }
+            }*/
+        }
+
+        public void update(CandleStick lastCandleStick) {
+
+            currentPrice.setBounds(0, plotPanel.getHeight() - (int) (lastCandleStick.getClosePricePercentHeight() * (double) plotPanel.getHeight()),
+                    300,
+                    50);
+            DecimalFormat dec = new DecimalFormat("#0.00");
+            currentPrice.setText("$ " + dec.format(lastCandleStick.getClosePrice()));
+
         }
 
         private void initLabelArrayList() {
-            for (int i = labelArrayList.length - 1; i > 0; i--) {
+            for (int i = labelArrayList.length - 1; i >= 0; i--) {
                 labelArrayList[i] = new JTextArea();
+                labelArrayList[i].setAlignmentY(JTextField.CENTER_ALIGNMENT);
             }
-            updateLabels();
+            //updateLabels();
         }
 
-        private void updateLabels(){
+        private void updateLabels() {
             CurrencyModel.PacketToDraw packetToDraw = gameModel.getChoosenCurrencyModel().getPacketToDraw(numberOfCandleSticksToPaint);
             String text;
-            for (int i = labelArrayList.length - 1; i > 0; i--) {
-                text = String.valueOf((((double)i / (double)labelArrayList.length) *
-                        (packetToDraw.getMaxPriceInArrayList() - packetToDraw.getMinPriceInArrayList())));
+            for (int i = labelArrayList.length - 1; i >= 0; i--) {
+                text = String.valueOf("Xd");
                 labelArrayList[i].setText(text);
             }
         }
@@ -176,7 +191,7 @@ public class PlotView extends JPanel implements Observer {
         public void paint(Graphics g) {
             super.paint(g);
             Graphics2D g2D = (Graphics2D) g;
-            updateLabels();
+            //updateLabels();
         }
 
 

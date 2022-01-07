@@ -4,9 +4,12 @@ import Interfaces.CalculationOfPriceStrategy.GeometricBrownianMotion;
 import Interfaces.CalculationOfPriceStrategy.ICurrencyPriceCalculation;
 
 import javax.swing.*;
-import java.util.Random;
+import java.io.Serial;
+import java.io.Serializable;
 
-public class CryptoCurrency {
+public class CryptoCurrency implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1932135322629796758L;
     private String name;
     private double basePrice;
     private double currentPrice;

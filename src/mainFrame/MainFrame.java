@@ -1,14 +1,20 @@
 package mainFrame;
 
 import Interfaces.Observer;
+import jdk.jshell.execution.Util;
 import model.GameModel;
+import model.Launcher;
 
 import javax.swing.*;
+import javax.swing.text.Utilities;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
+import java.io.Serial;
+import java.io.Serializable;
 
-public class MainFrame extends JFrame implements Observer, Runnable {
+public class MainFrame extends JFrame implements Observer, Runnable, Serializable {
+    @Serial
+    private static final long serialVersionUID = -5685591881236472424L;
     private final int HEIGHT = 600;
     private final int WIDTH = 1000;
     private final String TITLE = "Giełda - Wiktor Stankiewicz";
@@ -20,30 +26,67 @@ public class MainFrame extends JFrame implements Observer, Runnable {
 
     private GameView gameView;
     private GameModel gameModel;
+    private Launcher launcher;
 
-    public MainFrame() {
-
+    public MainFrame(Launcher launcher, GameModel gameModel) {
+        this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        this.launcher = launcher;
+        this.gameModel = gameModel;
+        this.gameView = new GameView(gameModel);
+        this.addWindowListener(new MainFrameListener());
+        gameModel.addObserver(gameView);
+        gameModel.addObserver(gameView.getPlotView());
+        initMainFrame();
+        initMainPanel();
+        initSavesPanel();
+        initContainerPanel();
+        this.add(containerPanel);
     }
+
+    private class MainFrameListener extends WindowAdapter  {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                /*int option = JOptionPane.showOptionDialog(
+                        MainFrame.this,
+                        "Czy na pewno chcesz zakończyć grę?",
+                        "Czy zakończyć?", JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.WARNING_MESSAGE, null,
+                        new Object[]{"Zapisz i zakończ","Zakończ bez zapisywania","Anuluj"},
+                        null );
+                switch (option) {
+                    case (0) -> {
+                        System.out.println("Window Closed");
+                        launcher.serialize(gameModel);
+                        System.exit(42);
+                    }
+                    case (1) -> {
+                        System.exit(41);
+                    }
+                }*/
+                System.out.println("Window Closed");
+                launcher.serialize(gameModel);
+                System.exit(42);
+            }
+
+            @Override
+            public void windowClosed(WindowEvent e) {
+
+
+            }
+        }
+
 
     @Override
     public void run() {
-
-        initMainFrame();
-        gameModel = new GameModel();
-        gameView = new GameView(gameModel);
-        gameModel.addObserver(gameView);
-        gameModel.addObserver(gameView.getPlotView());
-        //(new Thread(gameModel)).start();
-        gameModel.run();
-        this.add(gameView);
+        cardLayout.show(containerPanel,"savesPanel");
+        System.out.println("Done");
         this.pack();
         this.setVisible(true);
     }
 
-    private void initMainFrame(){
+    private void initMainFrame() {
         this.setTitle(TITLE);
         //this.setSize(WIDTH, HEIGHT);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
     private void initCreateGamePanel() {
@@ -58,7 +101,17 @@ public class MainFrame extends JFrame implements Observer, Runnable {
 
     private void initSavesPanel() {
         savesPanel.setBackground(Color.green);
-        savesPanel.add(new JTextArea("Saves Panel"));
+        savesPanel.setLayout(new BorderLayout());
+        DefaultListModel<String> listModel = new DefaultListModel<>();
+        JList<String> jList = new JList<>(listModel);
+        jList.setLayoutOrientation(JList.VERTICAL);
+        jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        listModel.addElement("1");
+        listModel.addElement("2");
+        listModel.addElement("3");
+        listModel.addElement("4");
+        savesPanel.add(jList);
+        //savesPanel.add(new JTextArea("Saves Panel"));
     }
 
     @Override
@@ -68,11 +121,11 @@ public class MainFrame extends JFrame implements Observer, Runnable {
 
     private void initContainerPanel() {
         containerPanel.setLayout(cardLayout);
+        containerPanel.add(gameView, "gameView");
         containerPanel.add(mainPanel, "mainPanel");
         containerPanel.add(savesPanel, "savesPanel");
-        containerPanel.add(gameView, "gamePanel");
-        containerPanel.add(createGamePanel, "createGamePanel");
-        containerPanel.setSize(WIDTH, HEIGHT);
+
+        //containerPanel.setSize(WIDTH, HEIGHT);
     }
 
     private void initMainPanel() {
@@ -88,12 +141,10 @@ public class MainFrame extends JFrame implements Observer, Runnable {
         JButton savesButton = initSavesButton();
         JButton createGameButton = initCreateGameButton();
         JButton exitGameButton = initExitGameButton();
-        JButton dummyGameButton = initDummyGameButton();
 
         buttonsPanel.add(savesButton);
         buttonsPanel.add(createGameButton);
         buttonsPanel.add(exitGameButton);
-        buttonsPanel.add(dummyGameButton);
 
         mainPanel.setLayout(new BorderLayout());
         mainPanel.add(gameTitle, BorderLayout.NORTH);

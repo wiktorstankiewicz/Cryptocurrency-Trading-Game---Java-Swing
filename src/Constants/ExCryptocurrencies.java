@@ -2,13 +2,15 @@ package Constants;
 
 import Utilities.CandleStick;
 import Utilities.CryptoCurrency;
-import Utilities.GameTime;
-import model.CurrencyModel;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class ExCryptocurrencies {
+public class ExCryptocurrencies implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -543641468790637103L;
     public static ArrayList<CryptoCurrency> availableCryptoCurrencies = new ArrayList<>();
     public static ArrayList<CandleStick> exampleCandleStickArray = new ArrayList<>();
     private static final double VOLATILITY = 0.01;
@@ -17,17 +19,15 @@ public class ExCryptocurrencies {
 
     static {
         availableCryptoCurrencies.add(new CryptoCurrency("Bitcoin",
-                300, "src/resources/btc.png", VOLATILITY, EAR));
+                50000, "src/resources/btc.png", VOLATILITY, EAR));
         availableCryptoCurrencies.add(new CryptoCurrency("Ethereum",
-                300, "src/resources/btc.png", VOLATILITY, EAR));
-        availableCryptoCurrencies.add(new CryptoCurrency("SHIB",
-                300, "resources/btc.png", VOLATILITY, EAR));
+                2500, "src/resources/eth.png", VOLATILITY, EAR));
         availableCryptoCurrencies.add(new CryptoCurrency("Matic",
-                300, "resources/btc.png", VOLATILITY, EAR));
+                4, "src/resources/MATIC.png", VOLATILITY, EAR));
         availableCryptoCurrencies.add(new CryptoCurrency("Cardano",
-                300, "resources/btc.png", VOLATILITY, EAR));
+                10, "src/resources/ADA.png", VOLATILITY, EAR));
         availableCryptoCurrencies.add(new CryptoCurrency("TFuel",
-                300, "resources/btc.png", VOLATILITY, EAR));
+                7500, "src/resources/TFuel.png", VOLATILITY, EAR));
 
         //createExampleCandleStickArray();
     }

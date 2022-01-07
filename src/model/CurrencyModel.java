@@ -4,11 +4,15 @@ import Utilities.CandleStick;
 import Utilities.CryptoCurrency;
 import Utilities.GameTime;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
-public class CurrencyModel {
+public class CurrencyModel implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 6096373980849786301L;
     private double ownedAmount;
+    private double valueOfOwnedAmount;
     private ArrayList<CandleStick> candleStickArrayList = new ArrayList<>(); //history of prices represented by candlesticks
     private CryptoCurrency cryptoCurrency;
     private double dailyPercentChange;
@@ -19,6 +23,12 @@ public class CurrencyModel {
     public CurrencyModel( CryptoCurrency cryptoCurrency) {
         this.cryptoCurrency = cryptoCurrency;
         ownedAmount = 0;
+        candleStickArrayList.add(new CandleStick(cryptoCurrency, new GameTime()));
+    }
+
+    public double getValueOfOwnedAmount() {
+        valueOfOwnedAmount = ownedAmount*cryptoCurrency.getCurrentPrice();
+        return valueOfOwnedAmount;
     }
 
     public CryptoCurrency getCryptoCurrency() {
@@ -67,10 +77,19 @@ public class CurrencyModel {
         return new PacketToDraw(amountToDraw);
     }
 
+    public double getOwnedAmount() {
+        return ownedAmount;
+    }
+
+    public void setOwnedAmount(double ownedAmount) {
+        this.ownedAmount = ownedAmount;
+    }
+
     public class PacketToDraw{
         ArrayList<CandleStick> candleSticks = new ArrayList<>();
         double minPriceInArrayList;
         double maxPriceInArrayList;
+        ArrayList<Double> axisValues = new ArrayList<Double>();
 
         public PacketToDraw(int amountToDraw){
             for(int i = Math.max(0, candleStickArrayList.size()-amountToDraw); i<candleStickArrayList.size(); i++){

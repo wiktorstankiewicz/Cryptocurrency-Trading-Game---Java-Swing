@@ -1,9 +1,12 @@
 package Utilities;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.io.Serial;
+import java.io.Serializable;
 
-public class CandleStick {
+public class CandleStick implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 3541615373408865763L;
     //in 0-1, relative to context
     private double openPricePercentHeight;
     private double closePricePercentHeight;
@@ -24,18 +27,18 @@ public class CandleStick {
     private boolean closed = false;
 
     //Mapping parameters
-    private static final double LOWER_BOUND = 0d;
-    private static final double UPPER_BOUND = 1d;
+    private final double LOWER_BOUND = 0d;
+    private final double UPPER_BOUND = 1d;
 
     public void mapPriceValues(double minPriceInArray, double maxPriceInArray) {
-        /*if (minPriceInArray == maxPriceInArray) {
+        if (minPriceInArray == maxPriceInArray) {
             maxPriceInArray = minPriceInArray * 1.2d;
-        }*/
+        }
         assert (minPriceInArray < maxPriceInArray);
-        openPricePercentHeight = linearMapping(openPrice, minPriceInArray, maxPriceInArray);
-        closePricePercentHeight = linearMapping(closePrice, minPriceInArray, maxPriceInArray);
-        maxPricePercentHeight = linearMapping(maxPrice, minPriceInArray, maxPriceInArray);
-        minPricePercentHeight = linearMapping(minPrice, minPriceInArray, maxPriceInArray);
+        openPricePercentHeight = linearMapping(openPrice, minPriceInArray, maxPriceInArray, LOWER_BOUND, UPPER_BOUND);
+        closePricePercentHeight = linearMapping(closePrice, minPriceInArray, maxPriceInArray, LOWER_BOUND, UPPER_BOUND);
+        maxPricePercentHeight = linearMapping(maxPrice, minPriceInArray, maxPriceInArray, LOWER_BOUND, UPPER_BOUND);
+        minPricePercentHeight = linearMapping(minPrice, minPriceInArray, maxPriceInArray, LOWER_BOUND, UPPER_BOUND);
         assert (openPricePercentHeight >= 0);
         assert (closePricePercentHeight >= 0);
         assert (maxPricePercentHeight >= 0);
@@ -47,12 +50,11 @@ public class CandleStick {
         assert (minPricePercentHeight <= 1);
     }
 
-    private double linearMapping(double valueToMap, double min, double max) throws IllegalArgumentException {
+    public static double linearMapping(double valueToMap, double min, double max, double lowerBound, double upperBound) throws IllegalArgumentException {
         assert (valueToMap >= min);
         assert (valueToMap <= max);
         assert (min < max);
-        return ((valueToMap - min) / (max - min)) * (UPPER_BOUND - LOWER_BOUND) + LOWER_BOUND;
-
+        return ((valueToMap - min) / (max - min)) * (upperBound - lowerBound) + lowerBound;
     }
 
     public CandleStick(double openPriceUSDT,

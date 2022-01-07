@@ -2,9 +2,14 @@ package Interfaces.CalculationOfPriceStrategy;
 
 import Utilities.CryptoCurrency;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Random;
 
-public class GeometricBrownianMotion implements ICurrencyPriceCalculation {
+public class GeometricBrownianMotion implements ICurrencyPriceCalculation, Serializable {
+    @Serial
+    private static final long serialVersionUID = -8697733920637380802L;
+
     @Override
     public void calculatePrice(int dt, CryptoCurrency cryptoCurrency) {
         Random generator = new Random();

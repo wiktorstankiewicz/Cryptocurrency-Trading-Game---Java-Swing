@@ -1,6 +1,11 @@
 package Utilities;
 
-public class GameTime implements Cloneable {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class GameTime implements Cloneable, Serializable {
+    @Serial
+    private static final long serialVersionUID = -4067309321639227652L;
     private int days;//0-inf
     private int hours;//0-23
     private int minutes;//0-59
