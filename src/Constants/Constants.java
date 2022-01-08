@@ -7,12 +7,12 @@ import java.util.ArrayList;
 
 public class Constants {
     public static final ArrayList<CryptoCurrency> AVAILABLE_CRYPTO_CURRENCIES = new ArrayList<>();
-    private static final double EAR = 0.00000001;
+    private static final double EAR = 0.0001;
     public static final DecimalFormat DOUBLE_FORMATTER = new DecimalFormat("#.##");
 
     static {
         AVAILABLE_CRYPTO_CURRENCIES.add(new CryptoCurrency("Bitcoin",
-                50000, "src/resources/btc.png", 0.01, EAR));
+                50000, "src/resources/btc.png", 0.15, EAR));
         AVAILABLE_CRYPTO_CURRENCIES.add(new CryptoCurrency("Ethereum",
                 2500, "src/resources/eth.png", 0.005, EAR));
         AVAILABLE_CRYPTO_CURRENCIES.add(new CryptoCurrency("Matic",

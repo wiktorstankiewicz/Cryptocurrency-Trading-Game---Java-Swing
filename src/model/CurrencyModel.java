@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class CurrencyModel implements Serializable {
     @Serial
     private static final long serialVersionUID = 6096373980849786301L;
-    private static final int durationOfOneCandleStick = 30;
+    private static final int durationOfOneCandleStick = 7200;
 
     //history of prices represented by candlesticks
     private final ArrayList<CandleStick> candleStickArrayList = new ArrayList<>();

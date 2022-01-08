@@ -17,6 +17,6 @@ public class GeometricBrownianMotion implements ICurrencyPriceCalculation, Seria
         double expectedAnnualReturn = cryptoCurrency.getExpectedAnnualReturn();
         double volatility = cryptoCurrency.getVolatility();
         cryptoCurrency.setCurrentPrice(currentPrice * Math.exp((expectedAnnualReturn - (volatility * volatility) / 2) * dt
-                + volatility * generator.nextDouble(-1, 1)));
+                + currentPrice * volatility * generator.nextDouble(-1, 1)));
     }
 }

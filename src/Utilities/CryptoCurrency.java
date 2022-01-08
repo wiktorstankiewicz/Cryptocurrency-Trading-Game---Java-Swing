@@ -2,6 +2,7 @@ package Utilities;
 
 import Interfaces.CalculationOfPriceStrategy.GeometricBrownianMotion;
 import Interfaces.CalculationOfPriceStrategy.ICurrencyPriceCalculation;
+import Interfaces.CalculationOfPriceStrategy.RandomlyGeneratedValue;
 
 import javax.swing.*;
 import java.io.Serial;
@@ -25,7 +26,7 @@ public class CryptoCurrency implements Serializable {
         this.currentPrice = basePrice;
         this.expectedAnnualReturn = expectedAnnualReturn;
         //todo example price calculation strategy
-        this.priceCalculation = new GeometricBrownianMotion();
+        this.priceCalculation = new RandomlyGeneratedValue();
         this.imageIcon = new ImageIcon(imgFilePath);
     }
 

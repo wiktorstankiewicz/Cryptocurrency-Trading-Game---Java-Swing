@@ -18,7 +18,7 @@ public class GameModel implements Observable, Runnable, Serializable {
 
     private final String name;
 
-    private final int gameSecondsPerFrame = 1; //how many game seconds passes in one frame
+    private final int gameSecondsPerFrame = 300; //how many game seconds passes in one frame
     private int delay = 1000; //how many ms it takes to refresh the frame
 
     private double ownedFiat;
