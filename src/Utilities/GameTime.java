@@ -28,7 +28,7 @@ public class GameTime implements Cloneable, Serializable {
 
     @Override
     public String toString() {
-        return days + " : " + hours + " : " + minutes + " : " + seconds + "\n";
+        return "Dzień: " + days + "      " + hours + " : " + minutes + " : " + seconds;
     }
 
     public int getDays() {

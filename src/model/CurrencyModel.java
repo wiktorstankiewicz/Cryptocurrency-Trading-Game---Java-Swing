@@ -1,8 +1,6 @@
 package model;
 
-import Utilities.CandleStick;
-import Utilities.CryptoCurrency;
-import Utilities.GameTime;
+import Utilities.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -11,70 +9,53 @@ import java.util.ArrayList;
 public class CurrencyModel implements Serializable {
     @Serial
     private static final long serialVersionUID = 6096373980849786301L;
+    private static final int durationOfOneCandleStick = 30;
+
+    //history of prices represented by candlesticks
+    private final ArrayList<CandleStick> candleStickArrayList = new ArrayList<>();
+
+    private final CryptoCurrency cryptoCurrency;
     private double ownedAmount;
-    private double valueOfOwnedAmount;
-    private ArrayList<CandleStick> candleStickArrayList = new ArrayList<>(); //history of prices represented by candlesticks
-    private CryptoCurrency cryptoCurrency;
-    private double dailyPercentChange;
-    private double dailyAbsoluteChange;
 
-    private PacketToDraw packetToDraw;
-
-    public CurrencyModel( CryptoCurrency cryptoCurrency) {
+    //====================================================Public Methods==============================================//
+    public CurrencyModel(CryptoCurrency cryptoCurrency) {
         this.cryptoCurrency = cryptoCurrency;
         ownedAmount = 0;
         candleStickArrayList.add(new CandleStick(cryptoCurrency, new GameTime()));
     }
 
-    public double getValueOfOwnedAmount() {
-        valueOfOwnedAmount = ownedAmount*cryptoCurrency.getCurrentPrice();
-        return valueOfOwnedAmount;
+    public void update(int timePassed, GameTime gameTime) {
+        checkIfCreateCandleStick(gameTime);
+        cryptoCurrency.getPriceCalculation().calculatePrice(timePassed, cryptoCurrency);
+        candleStickArrayList.get(candleStickArrayList.size() - 1).updatePrices();
+        assert (candleStickArrayList.size() > 0);
     }
+
+    //====================================================Private Methods=============================================//
+    private void checkIfCreateCandleStick(GameTime gameTime) {
+        if (candleStickArrayList.size() == 0) {
+            candleStickArrayList.add(new CandleStick(cryptoCurrency,
+                    gameTime));
+            return;
+        }
+        int last = candleStickArrayList.size() - 1;
+        if (gameTime.valueOf() - candleStickArrayList.get(last).getOpenTime().valueOf()
+                >= durationOfOneCandleStick) {
+            candleStickArrayList.get(last).setCloseTime(gameTime);
+            candleStickArrayList.add(new CandleStick(cryptoCurrency,
+                    gameTime));
+        }
+    }
+
+    //====================================================Getters and Setters=========================================//
+    public double getValueOfOwnedAmount() {
+        return ownedAmount * cryptoCurrency.getCurrentPrice();
+    }
+
+    public PacketToDraw getPacketToDraw(int amountToDraw) { return new PacketToDraw(amountToDraw); }
 
     public CryptoCurrency getCryptoCurrency() {
         return cryptoCurrency;
-    }
-
-    public ArrayList<CandleStick> getCandleStickArrayList() {
-        return candleStickArrayList;
-    }
-
-    public void setCandleStickArrayList(ArrayList<CandleStick> candleStickArrayList) {
-        this.candleStickArrayList = candleStickArrayList;
-    }
-
-    public void update(int timePassed, int amountToDraw) {
-        cryptoCurrency.getPriceCalculation().calculatePrice(timePassed, cryptoCurrency);
-        candleStickArrayList.get(candleStickArrayList.size() - 1).updatePrices();
-        PacketToDraw packetToDraw = new PacketToDraw(20);
-        //candleStickArrayList.get(candleStickArrayList.size() - 1).mapPriceValues(minPriceInArrayList,maxPriceInArrayList);
-        assert (candleStickArrayList.size() > 0);
-
-    }
-
-
-    public double getDailyPercentChange() {
-        return dailyPercentChange;
-    }
-
-    public void setDailyPercentChange(double dailyPercentChange) {
-        this.dailyPercentChange = dailyPercentChange;
-    }
-
-    public double getDailyAbsoluteChange() {
-        return dailyAbsoluteChange;
-    }
-
-    public void setDailyAbsoluteChange(double dailyAbsoluteChange) {
-        this.dailyAbsoluteChange = dailyAbsoluteChange;
-    }
-
-    public CandleStick lastCandleStick() {
-        return candleStickArrayList.get(candleStickArrayList.size() - 1);
-    }
-
-    public PacketToDraw getPacketToDraw(int amountToDraw){
-        return new PacketToDraw(amountToDraw);
     }
 
     public double getOwnedAmount() {
@@ -85,14 +66,14 @@ public class CurrencyModel implements Serializable {
         this.ownedAmount = ownedAmount;
     }
 
-    public class PacketToDraw{
-        ArrayList<CandleStick> candleSticks = new ArrayList<>();
-        double minPriceInArrayList;
-        double maxPriceInArrayList;
-        ArrayList<Double> axisValues = new ArrayList<Double>();
+    //====================================================Inner Classes===============================================//
+    public class PacketToDraw {
+        private final ArrayList<CandleStick> candleSticks = new ArrayList<>();
+        private double minPriceInArrayList;
+        private double maxPriceInArrayList;
 
-        public PacketToDraw(int amountToDraw){
-            for(int i = Math.max(0, candleStickArrayList.size()-amountToDraw); i<candleStickArrayList.size(); i++){
+        public PacketToDraw(int amountToDraw) {
+            for (int i = Math.max(0, candleStickArrayList.size() - amountToDraw); i < candleStickArrayList.size(); i++) {
                 candleSticks.add(candleStickArrayList.get(i));
             }
             fitToSize();
@@ -121,17 +102,5 @@ public class CurrencyModel implements Serializable {
         public ArrayList<CandleStick> getCandleSticks() {
             return candleSticks;
         }
-
-
-        public double getMinPriceInArrayList() {
-            return minPriceInArrayList;
-        }
-
-
-        public double getMaxPriceInArrayList() {
-            return maxPriceInArrayList;
-        }
-
-
     }
 }
