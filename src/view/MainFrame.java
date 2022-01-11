@@ -1,5 +1,6 @@
-package mainFrame;
+package view;
 
+import view.gamePanel.GamePanel;
 import model.GameModel;
 
 import javax.swing.*;
@@ -11,11 +12,13 @@ import java.awt.event.WindowEvent;
 import java.io.*;
 import java.util.ArrayList;
 
-import static Utilities.Utilities.addJPanelsToGrid;
+import static utilities.Utilities.addGridOfJPanels;
 
+@SuppressWarnings("ALL")
 public class MainFrame extends JFrame implements Runnable {
     private static final Dimension SMALL_DIMENSION = new Dimension(300, 300);
-    private static final Dimension BIG_DIMENSION = new Dimension(1000, 600);
+    private static final Dimension BIG_DIMENSION = new Dimension(1200, 600);
+    @SuppressWarnings("FieldCanBeLocal")
     private final String TITLE = "Giełda - Wiktor Stankiewicz";
     private final String SAVE_FILE_NAME = "save.ser";
 
@@ -26,13 +29,12 @@ public class MainFrame extends JFrame implements Runnable {
 
     private final CardLayout cardLayout = new CardLayout();
 
-    private JTextField createGameNameTextField = new JTextField();
     private JSpinner createGameStartingFunds = new JSpinner();
 
     private ArrayList<GameModel> gameModelArrayList = new ArrayList<>();
     private JList<GameModel> gameModelSelectionJList = new JList<>();
 
-    private GameView gameView;
+    private GamePanel gamePanel;
 
     //====================================================Public Methods==============================================//
 
@@ -49,10 +51,9 @@ public class MainFrame extends JFrame implements Runnable {
 
     @Override
     public void run() {
+        deserialize();
         this.setSize(BIG_DIMENSION);
-        this.deserialize();
         cardLayout.show(containerPanel, "mainPanel");
-        System.out.println("Done");
         this.setVisible(true);
     }
 
@@ -69,29 +70,27 @@ public class MainFrame extends JFrame implements Runnable {
         JPanel northPanel = new JPanel();
         JButton acceptButton = new JButton("Akceptuj");
         SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel();
-        JPanel[][] grid = addJPanelsToGrid(5, 2, centerPanel, 1, 1);
-        JTextField title = new JTextField("Tworzenie nowej gry");
-        JTextField name = new JTextField("Nazwa: ");
+        JPanel[][] grid = addGridOfJPanels(5, 2, centerPanel, 1, 1);
+        JLabel title = new JLabel("Tworzenie nowej gry");
+        JLabel name = new JLabel("Nazwa: ");
         JTextField gameNameInputJTextField = new JTextField();
-        JTextField startingFunds = new JTextField("Srodki początkowe: ");
+        JLabel startingFunds = new JLabel("Srodki początkowe: ");
 
         createGameStartingFunds = new JSpinner(spinnerNumberModel);
-        createGameNameTextField = new JTextField();
-
         createGamePanel.setLayout(new BorderLayout());
         createGamePanel.add(southPanel, BorderLayout.SOUTH);
         createGamePanel.add(centerPanel, BorderLayout.CENTER);
         createGamePanel.add(northPanel, BorderLayout.NORTH);
 
-        title.setEditable(false);
         title.setFocusable(false);
         title.setOpaque(false);
+        title.setHorizontalAlignment(SwingConstants.CENTER);
 
-        name.setEditable(false);
         name.setFocusable(false);
+        name.setHorizontalAlignment(SwingConstants.CENTER);
 
-        startingFunds.setEditable(false);
         startingFunds.setFocusable(false);
+        startingFunds.setHorizontalAlignment(SwingConstants.CENTER);
 
         spinnerNumberModel.setMinimum(5000);
         spinnerNumberModel.setMaximum(1000000);
@@ -101,7 +100,6 @@ public class MainFrame extends JFrame implements Runnable {
         acceptButton.addActionListener(e -> {
             addGameModel(new GameModel(gameNameInputJTextField.getText(),
                     ((Integer) createGameStartingFunds.getValue()).doubleValue()));
-            System.out.println("Utworzono nowy zapis" + gameNameInputJTextField.getText());
             refreshSavesPanel();
             this.setSize(BIG_DIMENSION);
             cardLayout.show(containerPanel, "savesPanel");
@@ -166,12 +164,24 @@ public class MainFrame extends JFrame implements Runnable {
 
     private void initMainPanel() {
         JPanel buttonsPanel = new JPanel(new GridBagLayout());
-        JTextField gameTitle = new JTextField("Symulator giełdy kryptowalut", 1);
-        JButton savesButton = initSavesButton();
-        JButton createGameButton = initCreateGameButton();
-        JButton exitGameButton = initExitGameButton();
+        JLabel gameTitle = new JLabel("Symulator giełdy kryptowalut");
+        JButton savesButton = new JButton("Wczytaj zapis");
+        JButton createGameButton = new JButton("Stwórz nową grę");
+        JButton exitGameButton = new JButton("Wyjdź do Windows");
 
-        gameTitle.setEditable(false);
+        savesButton.setFont(new Font("Arial", Font.BOLD, 30));
+        savesButton.addActionListener(new SavesButtonClicked());
+
+        createGameButton.setFont(new Font("Arial", Font.BOLD, 30));
+        createGameButton.addActionListener(new CreateGameButtonClicked());
+
+        exitGameButton.setFont(new Font("Arial", Font.BOLD, 30));
+        exitGameButton.addActionListener(new ExitButtonClicked());
+
+        savesButton.setFocusable(false);
+        createGameButton.setFocusable(false);
+        exitGameButton.setFocusable(false);
+
         gameTitle.setFocusable(false);
         gameTitle.setOpaque(false);
         gameTitle.setFont(new Font("Comic sans", Font.PLAIN, 55));
@@ -186,34 +196,10 @@ public class MainFrame extends JFrame implements Runnable {
         mainPanel.add(buttonsPanel, BorderLayout.CENTER);
     }
 
-    private JButton initExitGameButton() {
-        JButton exitGameButton = new JButton("Wyjdź do Windows");
-
-        exitGameButton.setFont(new Font("Arial", Font.BOLD, 30));
-        exitGameButton.addActionListener(new ExitButtonClicked());
-        return exitGameButton;
-    }
-
-    private JButton initCreateGameButton() {
-        JButton createGameButton = new JButton("Stwórz nową grę");
-
-        createGameButton.setFont(new Font("Comic Sans", Font.BOLD, 30));
-        createGameButton.addActionListener(new CreateGameButtonClicked());
-        return createGameButton;
-    }
-
-    private JButton initSavesButton() {
-        JButton savesButton = new JButton("Wczytaj zapis");
-        savesButton.setFont(new Font("Comic Sans", Font.BOLD, 30));
-        savesButton.addActionListener(new SavesButtonClicked());
-        return savesButton;
-    }
-
     private void serialize() {
         try {
             ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(SAVE_FILE_NAME));
             os.writeObject(gameModelArrayList);
-            System.out.println("Pomyślnie zapisano " + gameModelArrayList.size() + " zapisów");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -253,7 +239,6 @@ public class MainFrame extends JFrame implements Runnable {
     private class SavesButtonClicked implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            deserialize();
             refreshSavesPanel();
             cardLayout.show(containerPanel, "savesPanel");
         }
@@ -266,8 +251,8 @@ public class MainFrame extends JFrame implements Runnable {
             if (selectedSave == null) {
                 return;
             }
-            gameView = new GameView(selectedSave);
-            containerPanel.add(gameView, "gameView");
+            gamePanel = new GamePanel(selectedSave);
+            containerPanel.add(gamePanel, "gameView");
             cardLayout.show(containerPanel, "gameView");
         }
     }
@@ -284,7 +269,6 @@ public class MainFrame extends JFrame implements Runnable {
             }
             model.remove(selectedIndex);
             MainFrame.this.removeSave(selectedSave);
-            serialize();
         }
     }
 
@@ -307,13 +291,15 @@ public class MainFrame extends JFrame implements Runnable {
                     null);
             switch (option) {
                 case (0) -> {
-                    System.out.println("Window Closed");
                     serialize();
-                    System.exit(42);
+                    System.exit(0);
                 }
-                case (1) -> System.exit(41);
+                case (1) -> System.exit(0);
+                default -> {
+                    return;
+                }
             }
-            System.exit(42);
+            System.exit(1);
         }
 
         @Override

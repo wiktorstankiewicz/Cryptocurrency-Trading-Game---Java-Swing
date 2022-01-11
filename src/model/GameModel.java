@@ -1,10 +1,10 @@
 package model;
 
-import Constants.Constants;
-import Interfaces.Observable;
-import Interfaces.Observer;
-import Utilities.CryptoCurrency;
-import Utilities.GameTime;
+import utilities.Constants;
+import interfaces.Observable;
+import interfaces.Observer;
+import utilities.CryptoCurrency;
+import utilities.GameTime;
 
 import javax.swing.*;
 import java.io.Serial;
@@ -15,20 +15,17 @@ public class GameModel implements Observable, Runnable, Serializable {
     @Serial
     private static final long serialVersionUID = -7756479980491019706L;
     private transient ArrayList<Observer> observerArrayList = new ArrayList<>();
-
     private final String name;
-
     private final int gameSecondsPerFrame = 300; //how many game seconds passes in one frame
     private int delay = 1000; //how many ms it takes to refresh the frame
-
     private double ownedFiat;
-
     private boolean isPaused = false;
-
     private Timer frameRefreshingTimer;
     private final ArrayList<CurrencyModel> currencyModels = new ArrayList<>();
     private CurrencyModel chosenCurrencyModel; // represents currency chosen by user
     private final GameTime gameTime = new GameTime();
+
+    //====================================================Public Methods==============================================//
 
     public GameModel(String name, double startingFunds) {
         for (CryptoCurrency cc : Constants.AVAILABLE_CRYPTO_CURRENCIES) {
@@ -38,8 +35,6 @@ public class GameModel implements Observable, Runnable, Serializable {
         this.name = name;
         this.ownedFiat = startingFunds;
     }
-
-    //====================================================Public Methods==============================================//
 
     @Override
     public void run() {
@@ -87,7 +82,7 @@ public class GameModel implements Observable, Runnable, Serializable {
 
     private void updateGame() {
         gameTime.addElapsedTime(gameSecondsPerFrame);
-        currencyModels.forEach(cm -> cm.update(gameSecondsPerFrame, gameTime));
+        currencyModels.forEach(cm -> cm.updateCurrencyModel(gameSecondsPerFrame, gameTime));
         this.notifyObservers();
     }
 
@@ -140,5 +135,9 @@ public class GameModel implements Observable, Runnable, Serializable {
 
     public Timer getFrameRefreshingTimer() {
         return frameRefreshingTimer;
+    }
+
+    public double getValueOfWallet() {
+        return currencyModels.stream().mapToDouble(CurrencyModel::getValueOfOwnedAmount).sum();
     }
 }

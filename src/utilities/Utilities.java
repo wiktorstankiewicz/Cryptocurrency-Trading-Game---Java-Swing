@@ -1,10 +1,10 @@
-package Utilities;
+package utilities;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class Utilities {
-    public static JPanel[][] addJPanelsToGrid(int rows, int columns, JPanel panel, int vGap, int hGap) {
+    public static JPanel[][] addGridOfJPanels(int rows, int columns, JPanel panel, int vGap, int hGap) {
         panel.setLayout(new GridLayout(rows, columns, vGap, hGap));
         JPanel[][] grid = new JPanel[rows][columns];
         for (int row = 0; row < grid.length; row++) {

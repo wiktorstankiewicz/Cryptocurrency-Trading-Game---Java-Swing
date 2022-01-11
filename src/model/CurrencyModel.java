@@ -1,6 +1,6 @@
 package model;
 
-import Utilities.*;
+import utilities.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -13,7 +13,6 @@ public class CurrencyModel implements Serializable {
 
     //history of prices represented by candlesticks
     private final ArrayList<CandleStick> candleStickArrayList = new ArrayList<>();
-
     private final CryptoCurrency cryptoCurrency;
     private double ownedAmount;
 
@@ -24,9 +23,9 @@ public class CurrencyModel implements Serializable {
         candleStickArrayList.add(new CandleStick(cryptoCurrency, new GameTime()));
     }
 
-    public void update(int timePassed, GameTime gameTime) {
+    public void updateCurrencyModel(int timePassed, GameTime gameTime) {
         checkIfCreateCandleStick(gameTime);
-        cryptoCurrency.getPriceCalculation().calculatePrice(timePassed, cryptoCurrency);
+        cryptoCurrency.updatePrice(timePassed);
         candleStickArrayList.get(candleStickArrayList.size() - 1).updatePrices();
         assert (candleStickArrayList.size() > 0);
     }
@@ -41,7 +40,6 @@ public class CurrencyModel implements Serializable {
         int last = candleStickArrayList.size() - 1;
         if (gameTime.valueOf() - candleStickArrayList.get(last).getOpenTime().valueOf()
                 >= durationOfOneCandleStick) {
-            candleStickArrayList.get(last).setCloseTime(gameTime);
             candleStickArrayList.add(new CandleStick(cryptoCurrency,
                     gameTime));
         }

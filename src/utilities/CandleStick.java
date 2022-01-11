@@ -1,9 +1,10 @@
-package Utilities;
+package utilities;
 
 import java.awt.*;
 import java.io.Serial;
 import java.io.Serializable;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class CandleStick implements Serializable {
     @Serial
     private static final long serialVersionUID = 3541615373408865763L;
@@ -22,11 +23,12 @@ public class CandleStick implements Serializable {
 
     private final CryptoCurrency cryptoCurrency;
     private final GameTime openTime;
-    private GameTime closeTime;
 
     //Mapping parameters
     private final double LOWER_BOUND = 0d;
     private final double UPPER_BOUND = 1d;
+
+    //====================================================Public Methods==============================================//
 
     public CandleStick(double openPriceUSDT,
                        double closePriceUSDT,
@@ -86,6 +88,9 @@ public class CandleStick implements Serializable {
         this.maxPrice = Math.max(newPrice, this.maxPrice);
         this.minPrice = Math.min(newPrice, this.minPrice);
     }
+    //====================================================Private Methods=============================================//
+
+    //====================================================Getters and setters=========================================//
 
     public double getOpenPricePercentHeight() {
         return openPricePercentHeight;
@@ -114,10 +119,6 @@ public class CandleStick implements Serializable {
         return openTime;
     }
 
-    public double getClosePrice() {
-        return closePrice;
-    }
-
     public double getMaxPrice() {
         return maxPrice;
     }
@@ -126,7 +127,4 @@ public class CandleStick implements Serializable {
         return minPrice;
     }
 
-    public void setCloseTime(GameTime gameTime) {
-        this.closeTime = gameTime.clone();
-    }
 }
