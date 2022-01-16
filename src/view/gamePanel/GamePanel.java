@@ -104,20 +104,59 @@ public class GamePanel extends JPanel implements Observer {
     @Override
     public void update() {
         GameTime currentTime = gameModel.getGameTime();
-        gameTimeLabel.setText(String.valueOf(currentTime));
+        setGameTimeLabelText(currentTime.toString());
         documentListener.changedUpdate(new EmptyDocumentEvent());
-        ownedCrypto.setText(Constants.DOUBLE_FORMATTER.format(gameModel.getChosenCurrencyModel().getOwnedAmount()));
-        valueOfOwnedCrypto.setText("$" + Constants.DOUBLE_FORMATTER.format(gameModel.getChosenCurrencyModel().getOwnedAmount() *
+        setOwnedCryptoText(String.valueOf(gameModel.getChosenCurrencyModel().getOwnedAmount()));
+        setValueOfOwnedCryptoText("$" + Constants.DOUBLE_FORMATTER.format(gameModel.getChosenCurrencyModel().getOwnedAmount() *
                 gameModel.getChosenCurrencyModel().getCryptoCurrency().getCurrentPrice()));
-        fiatBalance.setText("$" + Constants.DOUBLE_FORMATTER.format(gameModel.getOwnedFiat()));
-        chosenCurrencyText.setText("Waluta: " +
+        setFiatBalanceText("$" + Constants.DOUBLE_FORMATTER.format(gameModel.getOwnedFiat()));
+        setChosenCurrencyText("Waluta: " +
                 gameModel.getChosenCurrencyModel().getCryptoCurrency().getName().toUpperCase(Locale.ROOT));
-        chosenCurrencyValue.setText("Cena: " + "$" +
-                Constants.DOUBLE_FORMATTER.format(gameModel.getChosenCurrencyModel().getCryptoCurrency().getCurrentPrice()).toUpperCase(Locale.ROOT));
-        chosenCurrencyValue.setForeground(gameModel.getChosenCurrencyModel().getPacketToDraw(1).getCandleSticks().get(0).getColor());
-        valueOfCryptos.setText("$" + Constants.DOUBLE_FORMATTER.format(gameModel.getValueOfWallet()));
-        totalValue.setText("$" + Constants.DOUBLE_FORMATTER.format(gameModel.getValueOfWallet()+gameModel.getOwnedFiat()));
+        setChosenCurrencyValueText("Cena: " + "$" +
+                Constants.DOUBLE_FORMATTER.format(gameModel.getChosenCurrencyModel().getCryptoCurrency().getCurrentPrice()).toUpperCase(Locale.ROOT),
+                gameModel.getChosenCurrencyModel().getPacketToDraw(1).getCandleSticks().get(0).getColor());
+        setValueOfCryptosText("$" + Constants.DOUBLE_FORMATTER.format(gameModel.getValueOfWallet()));
+        setTotalValueText("$" + Constants.DOUBLE_FORMATTER.format(gameModel.getValueOfWallet() + gameModel.getOwnedFiat()));
     }
+
+    private void setTotalValueText(String text) {
+        totalValue.setText(text);
+    }
+
+    private void setValueOfCryptosText(String text) {
+        valueOfCryptos.setText(text);
+    }
+
+    private void setChosenCurrencyValueText(String text, PriceDirection priceDirection) {
+        Color color = switch (priceDirection){
+            case UP -> Color.GREEN;
+            case DOWN -> Color.RED;
+        };
+        chosenCurrencyValue.setText(text);
+        chosenCurrencyValue.setForeground(color);
+    }
+
+    private void setChosenCurrencyText(String text) {
+        chosenCurrencyText.setText(text);
+
+    }
+
+    private void setFiatBalanceText(String text) {
+        fiatBalance.setText(text);
+    }
+
+    private void setValueOfOwnedCryptoText(String text) {
+        valueOfOwnedCrypto.setText(text);
+    }
+
+    private void setOwnedCryptoText(String ownedAmount) {
+        ownedCrypto.setText(ownedAmount);
+    }
+
+    private void setGameTimeLabelText(String text) {
+        gameTimeLabel.setText(text);
+    }
+
 
     //====================================================Private Methods==============================================//
 
@@ -180,7 +219,7 @@ public class GamePanel extends JPanel implements Observer {
         rightPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         rightPanel.setBackground(Color.BLACK);
         fiatBalance.setHorizontalAlignment(JTextField.CENTER);
-        fiatBalance.setText("$" + Constants.DOUBLE_FORMATTER.format(gameModel.getOwnedFiat()));
+        setFiatBalanceText("$" + Constants.DOUBLE_FORMATTER.format(gameModel.getOwnedFiat()));
         fiatBalance.setForeground(Color.WHITE);
 
         text2.setHorizontalAlignment(SwingConstants.CENTER);
@@ -214,7 +253,6 @@ public class GamePanel extends JPanel implements Observer {
         chosenCurrencyText.setHorizontalAlignment(SwingConstants.CENTER);
         chosenCurrencyValue = new JLabel("Cena: " +
                 Constants.DOUBLE_FORMATTER.format(gameModel.getChosenCurrencyModel().getCryptoCurrency().getCurrentPrice()).toUpperCase(Locale.ROOT));
-        chosenCurrencyValue.setForeground(gameModel.getChosenCurrencyModel().getPacketToDraw(1).getCandleSticks().get(0).getColor());
         chosenCurrencyValue.setHorizontalAlignment(SwingConstants.CENTER);
         description1.setForeground(Color.WHITE);
         description1.setHorizontalAlignment(SwingConstants.CENTER);

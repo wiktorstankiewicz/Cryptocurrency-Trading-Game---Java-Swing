@@ -58,9 +58,12 @@ public class PlotPanel extends JPanel implements Observer {
         int y = (int) (candleStick.getOpenPricePercentHeight() * (double) graphPanel.getHeight());
         int height = (int) (((candleStick.getClosePricePercentHeight() - candleStick.getOpenPricePercentHeight()) * graphPanel.getHeight()));
         int middleOfCandle = leftX + width / 2;
-
+        Color color = switch(candleStick.getColor()){
+            case UP -> Color.green;
+            case DOWN -> Color.RED;
+        };
         //drawing body of candle
-        g2D.setColor(candleStick.getColor());
+        g2D.setColor(color);
         if (height > 0) {
             g2D.fill(new Rectangle(leftX, y, width, abs(height)));
         } else {
@@ -86,7 +89,11 @@ public class PlotPanel extends JPanel implements Observer {
     }
 
     private void paintCurrentPriceLine(Graphics2D g2D, CandleStick lastCandleStick, int middleOfLastCandleStick) {
-        g2D.setColor(lastCandleStick.getColor());
+        Color color = switch(lastCandleStick.getColor()){
+            case UP -> Color.GREEN;
+            case DOWN -> Color.RED;
+        };
+        g2D.setColor(color);
         g2D.setStroke(new BasicStroke(2));
         g2D.drawLine(0, (int) (lastCandleStick.getClosePricePercentHeight() * (double) graphPanel.getHeight()),
                 middleOfLastCandleStick,
