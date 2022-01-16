@@ -1,9 +1,9 @@
 package view.gamePanel;
 
 import interfaces.Observer;
-import utilities.CandleStick;
 import model.CurrencyModel;
 import model.GameModel;
+import utilities.CandleStick;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,22 +15,19 @@ import static java.lang.Math.abs;
 public class PlotPanel extends JPanel implements Observer {
     @Serial
     private static final long serialVersionUID = -6105297773901533785L;
-    private int numberOfCandleSticksToPaint = 20;
-
-    private final GameModel gameModel;
-    private final GraphPanel graphPanel = new GraphPanel();
+    private int numberOfCandleSticksToPaint;
+    private CurrencyModel.PacketToDraw packetToDraw;
 
     //====================================================Public Methods==============================================//
 
-    public PlotPanel(GameModel gameModel) {
-        this.gameModel = gameModel;
+    public PlotPanel() {
         initPlotPanel();
         update();
     }
 
     @Override
     public void update() {
-        graphPanel.repaint();
+        this.repaint();
     }
 
     public int getNumberOfCandleSticksToPaint() {
@@ -44,21 +41,15 @@ public class PlotPanel extends JPanel implements Observer {
     //====================================================Private Methods=============================================//
 
     private void initPlotPanel() {
-        initGraphPanel();
-        this.setLayout(new BorderLayout());
-        this.add(graphPanel, BorderLayout.CENTER);
-    }
-
-    private void initGraphPanel() {
-        graphPanel.setLayout(null);
-        graphPanel.setBackground(Color.BLACK);
+        this.setLayout(null);
+        this.setBackground(Color.BLACK);
     }
 
     private void paintCandleStick(int leftX, CandleStick candleStick, Graphics2D g2D, int width) {
-        int y = (int) (candleStick.getOpenPricePercentHeight() * (double) graphPanel.getHeight());
-        int height = (int) (((candleStick.getClosePricePercentHeight() - candleStick.getOpenPricePercentHeight()) * graphPanel.getHeight()));
+        int y = (int) (candleStick.getOpenPricePercentHeight() * (double) this.getHeight());
+        int height = (int) (((candleStick.getClosePricePercentHeight() - candleStick.getOpenPricePercentHeight()) * this.getHeight()));
         int middleOfCandle = leftX + width / 2;
-        Color color = switch(candleStick.getColor()){
+        Color color = switch (candleStick.getColor()) {
             case UP -> Color.green;
             case DOWN -> Color.RED;
         };
@@ -71,15 +62,14 @@ public class PlotPanel extends JPanel implements Observer {
         }
 
         //drawing the candlewick
-        g2D.drawLine(middleOfCandle, (int) (candleStick.getMinPricePercentHeight() * graphPanel.getHeight()), middleOfCandle,
-                (int) (candleStick.getMaxPricePercentHeight() * graphPanel.getHeight()));
+        g2D.drawLine(middleOfCandle, (int) (candleStick.getMinPricePercentHeight() * this.getHeight()), middleOfCandle,
+                (int) (candleStick.getMaxPricePercentHeight() * this.getHeight()));
     }
 
-    private void paintAllCandleSticks(Graphics2D g2D) {
-        CurrencyModel.PacketToDraw packetToDraw = gameModel.getChosenCurrencyModel().getPacketToDraw(numberOfCandleSticksToPaint);
+    private void paintAllCandleSticks(Graphics2D g2D, CurrencyModel.PacketToDraw packetToDraw, int numberOfCandleSticksToPaint) {
         ArrayList<CandleStick> arrayListToDraw = packetToDraw.getCandleSticks();
         CandleStick lastCandleStick = arrayListToDraw.get(arrayListToDraw.size() - 1);
-        int candleStickWidth = graphPanel.getWidth() / PlotPanel.this.numberOfCandleSticksToPaint;
+        int candleStickWidth = this.getWidth() / numberOfCandleSticksToPaint;
         int middleOfLastCandleStick = arrayListToDraw.size() * candleStickWidth - candleStickWidth / 2;
 
         for (int i = 0; i < arrayListToDraw.size(); i++) {
@@ -89,29 +79,28 @@ public class PlotPanel extends JPanel implements Observer {
     }
 
     private void paintCurrentPriceLine(Graphics2D g2D, CandleStick lastCandleStick, int middleOfLastCandleStick) {
-        Color color = switch(lastCandleStick.getColor()){
+        Color color = switch (lastCandleStick.getColor()) {
             case UP -> Color.GREEN;
             case DOWN -> Color.RED;
         };
         g2D.setColor(color);
         g2D.setStroke(new BasicStroke(2));
-        g2D.drawLine(0, (int) (lastCandleStick.getClosePricePercentHeight() * (double) graphPanel.getHeight()),
+        g2D.drawLine(0, (int) (lastCandleStick.getClosePricePercentHeight() * (double) this.getHeight()),
                 middleOfLastCandleStick,
-                (int) (lastCandleStick.getClosePricePercentHeight() * (double) graphPanel.getHeight()));
+                (int) (lastCandleStick.getClosePricePercentHeight() * (double) this.getHeight()));
     }
 
-    private class GraphPanel extends JPanel {
-        @Override
-        public void paint(Graphics g) {
-            super.paint(g);
-            Graphics2D g2D = (Graphics2D) g;
-            g2D.scale(1, -1);
-            g2D.translate(0, -getHeight());
+    @Override
+    public void paint(Graphics g) {
+        super.paint(g);
+        Graphics2D g2D = (Graphics2D) g;
+        g2D.scale(1, -1);
+        g2D.translate(0, -getHeight());
 
-            paintAllCandleSticks(g2D);
+        paintAllCandleSticks(g2D, packetToDraw, numberOfCandleSticksToPaint);
 
-            g2D.scale(1, -1);
-            g2D.translate(0, getHeight());
-        }
+        g2D.scale(1, -1);
+        g2D.translate(0, getHeight());
     }
 }
+

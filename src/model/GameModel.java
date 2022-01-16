@@ -11,7 +11,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class GameModel implements Observable, Runnable, Serializable {
+public class GameModel implements Observable, Serializable {
     @Serial
     private static final long serialVersionUID = -7756479980491019706L;
     private transient ArrayList<Observer> observerArrayList = new ArrayList<>();
@@ -20,7 +20,6 @@ public class GameModel implements Observable, Runnable, Serializable {
     private int delay = 1000; //how many ms it takes to refresh the frame
     private double ownedFiat;
     private boolean isPaused = false;
-    private Timer frameRefreshingTimer;
     private final ArrayList<CurrencyModel> currencyModels = new ArrayList<>();
     private CurrencyModel chosenCurrencyModel; // represents currency chosen by user
     private final GameTime gameTime = new GameTime();
@@ -36,16 +35,6 @@ public class GameModel implements Observable, Runnable, Serializable {
         this.ownedFiat = startingFunds;
     }
 
-    @Override
-    public void run() {
-        frameRefreshingTimer = new Timer(delay, e -> updateGame());
-        frameRefreshingTimer.setInitialDelay(10);
-        if (isPaused) {
-            frameRefreshingTimer.stop();
-        } else {
-            frameRefreshingTimer.start();
-        }
-    }
 
     @Override
     public void addObserver(Observer observer) {
@@ -80,7 +69,7 @@ public class GameModel implements Observable, Runnable, Serializable {
 
     //====================================================Private Methods=============================================//
 
-    private void updateGame() {
+    public void updateGame() {
         gameTime.addElapsedTime(gameSecondsPerFrame);
         currencyModels.forEach(cm -> cm.updateCurrencyModel(gameSecondsPerFrame, gameTime));
         this.notifyObservers();
@@ -105,8 +94,6 @@ public class GameModel implements Observable, Runnable, Serializable {
 
     public void setDelay(int delay) {
         this.delay = delay;
-        frameRefreshingTimer.setDelay(delay);
-        notifyObservers();
     }
 
     public int getDelay() {
@@ -133,9 +120,6 @@ public class GameModel implements Observable, Runnable, Serializable {
         return chosenCurrencyModel;
     }
 
-    public Timer getFrameRefreshingTimer() {
-        return frameRefreshingTimer;
-    }
 
     public double getValueOfWallet() {
         return currencyModels.stream().mapToDouble(CurrencyModel::getValueOfOwnedAmount).sum();
