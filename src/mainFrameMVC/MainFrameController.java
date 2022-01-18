@@ -1,13 +1,14 @@
 package mainFrameMVC;
 
-import controllers.GameController;
-import model.GameModel;
-import view.gamePanel.GamePanel;
+import GameMVC.GameController;
+import GameMVC.GameModel;
+import GameMVC.GamePanel;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 
 public class MainFrameController implements Runnable {
     private MainFrame view;
@@ -24,7 +25,11 @@ public class MainFrameController implements Runnable {
     @Override
     public void run() {
         addListenersToView();
-        model.deserialize();
+        try{
+            model.deserialize();
+        }catch (IOException | ClassNotFoundException e){
+            view.showErrorMesage("Nie udało się wczytać zapisów");
+        }
         view.start();
     }
 
@@ -73,8 +78,13 @@ public class MainFrameController implements Runnable {
                 return;
             }
             //todo
-            GamePanel gamePanel = new GamePanel();
+
             GameModel selectedSave = model.getSaves().get(selectedIndex);
+            GamePanel gamePanel = new GamePanel(selectedSave.getCurrencyNames(), selectedSave.getIcons(),
+                    selectedSave.isPaused(),
+                    selectedSave.getSimulationSpeed(),
+                    selectedSave.getNumberOfCandleSticksToDraw()
+                    );
             gameController = new GameController(gamePanel, selectedSave);
             view.showGamePanel(gamePanel);
             (new Thread(gameController)).start();

@@ -1,20 +1,19 @@
-package view.gamePanel;
+package GameMVC;
 
-import interfaces.Observer;
-import model.CurrencyModel;
-import model.GameModel;
+import view.gamePanel.PlotPanel;
+import view.gamePanel.PriceDirection;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 import static utilities.Utilities.addGridOfJPanels;
 
-public class GamePanel extends JPanel implements Observer {
+public class GamePanel extends JPanel {
     private final JPanel centerPanel = new JPanel();
     private final JPanel topPanel = new JPanel();
     private final JPanel bottomPanel = new JPanel();
@@ -30,46 +29,39 @@ public class GamePanel extends JPanel implements Observer {
     private final JTextField amountToBuyOrSellTextField = new JTextField();
     private final JTextField valueOfAmountToBuyOrSell = new JTextField();
     private final JLabel fiatBalance = new JLabel();
-    private final JLabel chosenCurrencyText =  new JLabel();
-    private final JLabel chosenCurrencyValue = new JLabel();
+    private final JLabel chosenCurrencyText = new JLabel("(WALUTA): ");
+    private final JLabel chosenCurrencyValue = new JLabel("(WARTOSC)");
     private final JLabel valueOfCryptos = new JLabel();
     private final JLabel totalValue = new JLabel();
 
     private PlotPanel plotPanel;
     private JPanel[][] cryptoCurrencyButtonsPanelGrid;
+    private final JButton buyButton = new JButton("ZAKUP");
+    private final JButton sellButton = new JButton("SPRZEDAŻ");
 
 
     //====================================================Public Methods==============================================//
 
-    public GamePanel() {
+    public GamePanel(ArrayList<String> currencyButtonLabels, ArrayList<ImageIcon> icons, boolean isPaused,
+                     int simulationSpeed, int numberOfCandleSticks) {
         this.setLayout(new BorderLayout());
-        this.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyChar() == ' ') {
-                    pauseButton.doClick();
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-
-            }
-        });
         this.setFocusable(true);
-        initBorderLayoutPanels();
-
-        this.update();
+        initBorderLayoutPanels(currencyButtonLabels, icons, isPaused,
+                simulationSpeed, numberOfCandleSticks);
     }
 
-    @Override
-    public void update() {
 
+    public void update(String time, String ownedCrypto, String valueOfOwnedCrypto, String valueOfAmountToBuyOrSell, String fiatBalance,
+                       String chosenCurrency, String chosenCurrencyValue, String valueOfCryptos, String totalValue) {
+        gameTimeLabel.setText(time);
+        this.ownedCrypto.setText(ownedCrypto);
+        this.valueOfOwnedCrypto.setText(valueOfOwnedCrypto);
+        this.valueOfAmountToBuyOrSell.setText(valueOfAmountToBuyOrSell);
+        this.fiatBalance.setText(fiatBalance);
+        this.chosenCurrencyText.setText(chosenCurrency);
+        this.chosenCurrencyValue.setText(chosenCurrencyValue);
+        this.valueOfCryptos.setText(valueOfCryptos);
+        this.totalValue.setText(totalValue);
     }
 
     public void setTotalValueText(String text) {
@@ -81,7 +73,7 @@ public class GamePanel extends JPanel implements Observer {
     }
 
     public void setChosenCurrencyValueText(String text, PriceDirection priceDirection) {
-        Color color = switch (priceDirection){
+        Color color = switch (priceDirection) {
             case UP -> Color.GREEN;
             case DOWN -> Color.RED;
         };
@@ -113,38 +105,36 @@ public class GamePanel extends JPanel implements Observer {
 
     //====================================================Private Methods==============================================//
 
-    public void initCurrencyButtons(GameModel gameModel) {
-        for (CurrencyModel cm : gameModel.getCurrencyModels()) {
-            JButton buffer;
-            buffer = new JButton(cm.getCryptoCurrency().getName());
+    public void initCurrencyButtons(ArrayList<String> labels) {
+        for (String label : labels) {
+            JButton buffer = new JButton(label);
             buffer.setSize(new Dimension(300, 50));
             buffer.setFocusable(false);
             buffer.setBackground(Color.LIGHT_GRAY);
-            buffer.addActionListener(e -> {
-                gameModel.setChosenCurrencyModel(cm);
-                for (JButton jButton : cryptoCurrencyButtons) {
-                    jButton.setBackground(Color.LIGHT_GRAY);
-                    jButton.setBorder(null);
-                }
-                buffer.setBackground(Color.GRAY);
-                buffer.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
-            });
             cryptoCurrencyButtons.add(buffer);
-            buffer.setIcon(buffer.getIcon());
+            //buffer.setIcon(buffer.getIcon());
         }
     }
 
-    private void initBorderLayoutPanels() {
-        initCenterPanel();
-        initTopPanel();
-        initBottomPanel();
-        initRightPanel();
-        initLeftPanel();
+    public void addActionListenersToCurrencyButtons(ArrayList<ActionListener> actionListeners) {
+        for (int i = 0; i < cryptoCurrencyButtons.size(); i++) {
+            cryptoCurrencyButtons.get(i).addActionListener(actionListeners.get(i));
+        }
     }
 
-    private void initLeftPanel() {
-        cryptoCurrencyButtonsPanelGrid = addGridOfJPanels(5, 2, leftPanel, 10, 10);
 
+    private void initBorderLayoutPanels(ArrayList<String> currencyButtonLabels, ArrayList<ImageIcon> icons, boolean isPaused,
+                                        int simulationSpeed, int numberOfCandleSticks) {
+        initCenterPanel();
+        initTopPanel(isPaused, simulationSpeed, numberOfCandleSticks);
+        initBottomPanel();
+        initRightPanel();
+        initLeftPanel(currencyButtonLabels, icons);
+    }
+
+    private void initLeftPanel(ArrayList<String> currencyButtonLabels, ArrayList<ImageIcon> icons) {
+        cryptoCurrencyButtonsPanelGrid = addGridOfJPanels(5, 2, leftPanel, 10, 10);
+        initCurrencyButtons(currencyButtonLabels);
         leftPanel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
         leftPanel.setBackground(Color.BLACK);
         for (int i = 0; i < cryptoCurrencyButtons.size(); i++) {
@@ -153,10 +143,11 @@ public class GamePanel extends JPanel implements Observer {
 
             cryptoCurrencyButtonsPanelGrid[i][0].setLayout(new BorderLayout());
             cryptoCurrencyButtonsPanelGrid[i][0].add(cryptoCurrencyButtons.get(i));
-            cryptoCurrencyButtonsPanelGrid[i][1].add(new JLabel());
+            cryptoCurrencyButtonsPanelGrid[i][1].add(new JLabel(icons.get(i)));
         }
         this.add(leftPanel, BorderLayout.WEST);
     }
+
 
     private void initRightPanel() {
         JPanel[][] grid = addGridOfJPanels(5, 2, rightPanel, 5, 5);
@@ -197,8 +188,7 @@ public class GamePanel extends JPanel implements Observer {
         JLabel ownedAmountValueText = new JLabel("Wartość:");
         JLabel description1 = new JLabel("Ilość do kupienia/sprzedania");
         JLabel description2 = new JLabel("Wartość");
-        JButton buyButton = new JButton("ZAKUP");
-        JButton sellButton = new JButton("SPRZEDAŻ");
+
         chosenCurrencyText.setForeground(Color.WHITE);
         chosenCurrencyText.setHorizontalAlignment(SwingConstants.CENTER);
         chosenCurrencyValue.setHorizontalAlignment(SwingConstants.CENTER);
@@ -249,20 +239,22 @@ public class GamePanel extends JPanel implements Observer {
         amountToBuyOrSellTextField.getDocument().addDocumentListener(documentListener);
     }
 
-    private void initTopPanel() {
+    private void initTopPanel(boolean isPaused, int simulationSpeed, int amountOfCandleSticks) {
         JPanel[][] topPanelGrid = addGridOfJPanels(1, 5, topPanel, 1, 1);
         topPanel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
         topPanel.setBackground(Color.BLACK);
 
         gameTimeLabel.setForeground(Color.WHITE);
         gameTimeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
+        setFastForwardButtonState(simulationSpeed);
         fastForwardButton.setFocusable(false);
-        //cryptoCurrencyButtons.get(0).doClick();
 
         pauseButton.setFocusable(false);
+        setPauseButtonState(isPaused);
+
 
         numberOfCandleSticksButton.setFocusable(false);
+        setNumberOfCandleSticksButtonState(amountOfCandleSticks);
         topPanelGrid[0][0].add(pauseButton);
         topPanelGrid[0][1].add(fastForwardButton);
         topPanelGrid[0][2].add(numberOfCandleSticksButton);
@@ -270,9 +262,24 @@ public class GamePanel extends JPanel implements Observer {
         this.add(topPanel, BorderLayout.NORTH);
     }
 
-    public void setFastForwardButtonText(String text) {
-        fastForwardButton.setText(text);
+    public void setFastForwardButtonState(int simulationSpeed) {
+        fastForwardButton.setText("x " + simulationSpeed);
     }
+
+    public void setNumberOfCandleSticksButtonState(int amountOfCandleSticks) {
+        numberOfCandleSticksButton.setText("Ilość świeczek: " + amountOfCandleSticks);
+    }
+
+    public void setPauseButtonState(boolean isPaused) {
+        if(!isPaused){
+            pauseButton.setText("Pause");
+            pauseButton.setForeground(Color.BLACK);
+            return;
+        }
+        pauseButton.setText("PAUSED");
+        pauseButton.setForeground(Color.RED);
+    }
+
 
     private void addMouseListenerToNumberOfCandleSticksButton(MouseListener mouseListener) {
         numberOfCandleSticksButton.addMouseListener(mouseListener);
@@ -292,7 +299,6 @@ public class GamePanel extends JPanel implements Observer {
     }
 
     //====================================================Inner classes===============================================//
-
 
 
     public JPanel getCenterPanel() {
@@ -345,7 +351,6 @@ public class GamePanel extends JPanel implements Observer {
     }
 
 
-
     public JTextField getAmountToBuyOrSellTextField() {
         return amountToBuyOrSellTextField;
     }
@@ -393,10 +398,19 @@ public class GamePanel extends JPanel implements Observer {
         this.cryptoCurrencyButtonsPanelGrid = cryptoCurrencyButtonsPanelGrid;
     }
 
+
     public void showErrorMessage(String text) {
         JOptionPane.showMessageDialog(GamePanel.this,
                 text,
                 "",
                 JOptionPane.WARNING_MESSAGE);
+    }
+
+    public JButton getBuyButton() {
+        return buyButton;
+    }
+
+    public JButton getSellButton() {
+        return sellButton;
     }
 }

@@ -1,6 +1,6 @@
 package mainFrameMVC;
 
-import model.GameModel;
+import GameMVC.GameModel;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -32,14 +32,11 @@ public class MainFrameModel {
         }
     }
 
-    public void deserialize(){
-        try {
+    public void deserialize() throws ClassNotFoundException, IOException {
             ObjectInputStream os = new ObjectInputStream(new FileInputStream(SAVE_FILE_NAME));
             //noinspection unchecked
             saves = (ArrayList<GameModel>) os.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+
     }
 
     public int getAmountOfSaves() {

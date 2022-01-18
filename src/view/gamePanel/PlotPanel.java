@@ -1,8 +1,6 @@
 package view.gamePanel;
 
-import interfaces.Observer;
 import model.CurrencyModel;
-import model.GameModel;
 import utilities.CandleStick;
 
 import javax.swing.*;
@@ -12,7 +10,7 @@ import java.util.ArrayList;
 
 import static java.lang.Math.abs;
 
-public class PlotPanel extends JPanel implements Observer {
+public class PlotPanel extends JPanel {
     @Serial
     private static final long serialVersionUID = -6105297773901533785L;
     private int numberOfCandleSticksToPaint;
@@ -22,12 +20,14 @@ public class PlotPanel extends JPanel implements Observer {
 
     public PlotPanel() {
         initPlotPanel();
-        update();
     }
 
-    @Override
-    public void update() {
+    public void update(int numberOfCandleSticksToPaint,
+                       CurrencyModel.PacketToDraw packetToDraw) {
+        this.numberOfCandleSticksToPaint = numberOfCandleSticksToPaint;
+        this.packetToDraw = packetToDraw;
         this.repaint();
+        System.out.println("plotpanel updated");
     }
 
     public int getNumberOfCandleSticksToPaint() {
@@ -67,12 +67,15 @@ public class PlotPanel extends JPanel implements Observer {
     }
 
     private void paintAllCandleSticks(Graphics2D g2D, CurrencyModel.PacketToDraw packetToDraw, int numberOfCandleSticksToPaint) {
-        if(packetToDraw == null){
+        if (packetToDraw == null) {
+            System.out.println("packet is null");
             return;
         }
-        if(numberOfCandleSticksToPaint < 1){
+        if (numberOfCandleSticksToPaint < 1) {
+            System.out.println("No candlesticks to paint");
             return;
         }
+        System.out.println(packetToDraw.getCandleSticks().size());
         ArrayList<CandleStick> arrayListToDraw = packetToDraw.getCandleSticks();
         CandleStick lastCandleStick = arrayListToDraw.get(arrayListToDraw.size() - 1);
         int candleStickWidth = this.getWidth() / numberOfCandleSticksToPaint;
@@ -104,9 +107,18 @@ public class PlotPanel extends JPanel implements Observer {
         g2D.translate(0, -getHeight());
 
         paintAllCandleSticks(g2D, packetToDraw, numberOfCandleSticksToPaint);
+        System.out.println("repainted!");
 
         g2D.scale(1, -1);
         g2D.translate(0, getHeight());
+    }
+
+    public void setPacketToDraw(CurrencyModel.PacketToDraw packetToDraw) {
+        this.packetToDraw = packetToDraw;
+    }
+
+    public CurrencyModel.PacketToDraw getPacketToDraw() {
+        return packetToDraw;
     }
 }
 

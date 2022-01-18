@@ -1,5 +1,6 @@
-package model;
+package GameMVC;
 
+import model.CurrencyModel;
 import utilities.Constants;
 import interfaces.Observable;
 import interfaces.Observer;
@@ -19,10 +20,12 @@ public class GameModel implements Observable, Serializable {
     private final int gameSecondsPerFrame = 300; //how many game seconds passes in one frame
     private int delay = 1000; //how many ms it takes to refresh the frame
     private double ownedFiat;
-    private boolean isPaused = false;
     private final ArrayList<CurrencyModel> currencyModels = new ArrayList<>();
     private CurrencyModel chosenCurrencyModel; // represents currency chosen by user
     private final GameTime gameTime = new GameTime();
+    private int simulationSpeed = 1;
+    private int numberOfCandleSticksToDraw = 20;
+    private boolean isPaused = false;
 
     //====================================================Public Methods==============================================//
 
@@ -123,5 +126,53 @@ public class GameModel implements Observable, Serializable {
 
     public double getValueOfWallet() {
         return currencyModels.stream().mapToDouble(CurrencyModel::getValueOfOwnedAmount).sum();
+    }
+
+    public ArrayList<String> getCurrencyNames() {
+        ArrayList<String> labels = new ArrayList<>();
+        for(CurrencyModel cm: currencyModels){
+            labels.add(cm.getCryptoCurrency().getName());
+        }
+        return labels;
+    }
+
+    public ArrayList<ImageIcon> getIcons() {
+        ArrayList<ImageIcon> icons = new ArrayList<>();
+        for(CurrencyModel cm: currencyModels){
+            icons.add(cm.getCryptoCurrency().getImageIcon());
+        }
+        return icons;
+    }
+
+    public int getSimulationSpeed() {
+        return simulationSpeed;
+    }
+
+    public void setSimulationSpeed(int simulationSpeed) {
+        this.simulationSpeed = simulationSpeed;
+    }
+
+    public int getNumberOfCandleSticksToDraw() {
+        return numberOfCandleSticksToDraw;
+    }
+
+    public ArrayList<Observer> getObserverArrayList() {
+        return observerArrayList;
+    }
+
+    public void setObserverArrayList(ArrayList<Observer> observerArrayList) {
+        this.observerArrayList = observerArrayList;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getGameSecondsPerFrame() {
+        return gameSecondsPerFrame;
+    }
+
+    public void setNumberOfCandleSticksToDraw(int numberOfCandleSticksToDraw) {
+        this.numberOfCandleSticksToDraw = numberOfCandleSticksToDraw;
     }
 }

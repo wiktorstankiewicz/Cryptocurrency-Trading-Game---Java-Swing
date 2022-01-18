@@ -1,13 +1,10 @@
 package mainFrameMVC;
 
-import model.GameModel;
-import view.gamePanel.GamePanel;
+import GameMVC.GamePanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.io.*;
 import java.util.ArrayList;
 
 import static utilities.Utilities.addGridOfJPanels;
@@ -307,5 +304,18 @@ public class MainFrame extends JFrame {
     public void showGamePanel(GamePanel gamePanel) {
         containerPanel.add(gamePanel, "gameView");
         cardLayout.show(containerPanel, "gameView");
+    }
+
+    public void showErrorMesage(String text) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JOptionPane.showMessageDialog(MainFrame.this
+                        ,
+                        text,"BLAD",
+                        JOptionPane.ERROR_MESSAGE,null);
+            }
+        }).start();
+
     }
 }
