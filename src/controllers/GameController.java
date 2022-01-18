@@ -4,7 +4,6 @@ import model.GameModel;
 import utilities.Constants;
 import utilities.GameTime;
 import view.gamePanel.GamePanel;
-import view.gamePanel.PlotPanel;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -23,16 +22,11 @@ public class GameController {
     private GamePanel gamePanel;
     private GameModel gameModel;
 
-    private PlotPanelController plotPanelController;
     private Timer timer;
 
     public GameController(GamePanel gamePanel, GameModel gameModel) {
         this.gamePanel = gamePanel;
         this.gameModel = gameModel;
-        PlotPanel plotPanel = new PlotPanel();
-        gamePanel.addPlotPanel(plotPanel);
-
-        plotPanelController = new PlotPanelController(plotPanel, gameModel);
         this.run();
     }
 
@@ -217,7 +211,7 @@ public class GameController {
                 position = (position + direction) % numbers.length;
             }
             gamePanel.getNumberOfCandleSticksButton().setText("Ilość świeczek: " + numbers[position]);
-            plotPanelController.updatePlotPanel(numbers[position]);
+            //todo update plotpanel
             gamePanel.getNumberOfCandleSticksButton().setSelected(false);
         }
 

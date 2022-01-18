@@ -263,7 +263,7 @@ public class GamePanel extends JPanel implements Observer {
         gameTimeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         fastForwardButton.setFocusable(false);
-        cryptoCurrencyButtons.get(0).doClick();
+        //cryptoCurrencyButtons.get(0).doClick();
 
         pauseButton.setFocusable(false);
 

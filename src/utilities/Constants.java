@@ -38,11 +38,11 @@ public class Constants {
                 5,
                 0.001));
 
-        AVAILABLE_CRYPTO_CURRENCIES.add(new CryptoCurrency("TFuel",
+        /*AVAILABLE_CRYPTO_CURRENCIES.add(new CryptoCurrency("TFuel",
                 7500,
                 "src/resources/TFuel.png",
                 4,
                 5,
-                0.001));
+                0.001));*/
     }
 }
