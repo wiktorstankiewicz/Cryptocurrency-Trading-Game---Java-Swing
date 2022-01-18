@@ -34,7 +34,7 @@ public class GamePanel extends JPanel {
     private final JLabel valueOfCryptos = new JLabel();
     private final JLabel totalValue = new JLabel();
 
-    private PlotPanel plotPanel;
+    private PlotPanel plotPanel = new PlotPanel();
     private JPanel[][] cryptoCurrencyButtonsPanelGrid;
     private final JButton buyButton = new JButton("ZAKUP");
     private final JButton sellButton = new JButton("SPRZEDAŻ");
@@ -108,7 +108,6 @@ public class GamePanel extends JPanel {
     public void initCurrencyButtons(ArrayList<String> labels) {
         for (String label : labels) {
             JButton buffer = new JButton(label);
-            buffer.setSize(new Dimension(300, 50));
             buffer.setFocusable(false);
             buffer.setBackground(Color.LIGHT_GRAY);
             cryptoCurrencyButtons.add(buffer);

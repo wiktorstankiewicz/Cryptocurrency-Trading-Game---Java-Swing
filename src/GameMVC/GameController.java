@@ -33,8 +33,6 @@ public class GameController implements Runnable {
         addListenersToButtons();
         gamePanel.addDocumentListenerToAmountToBuyOrSellTextField(documentListener);
         documentListener.changedUpdate(new EmptyDocumentEvent());
-        gamePanel.getCryptoCurrencyButtons().get(0).doClick();
-        gamePanel.addPlotPanel(new PlotPanel());
         updateGamePanel();
         timer = new Timer(gameModel.getDelay(), e -> {
             gameModel.updateGame();
@@ -79,7 +77,7 @@ public class GameController implements Runnable {
         documentListener.changedUpdate(new EmptyDocumentEvent());
         gamePanel.setTotalValueText("$" + Constants.DOUBLE_FORMATTER.format(gameModel.getValueOfWallet() + gameModel.getOwnedFiat()));
 
-        gamePanel.getPlotPanel().update(gameModel.getNumberOfCandleSticksToDraw(),
+        gamePanel.getPlotPanel().updates(gameModel.getNumberOfCandleSticksToDraw(),
                 gameModel.getChosenCurrencyModel().getPacketToDraw(gameModel.getNumberOfCandleSticksToDraw()));
     }
 
@@ -90,7 +88,6 @@ public class GameController implements Runnable {
         @Override
         public void mouseClicked(MouseEvent e) {
             gamePanel.getFastForwardButton().setSelected(true);
-            updateGamePanel();
         }
 
         @Override
@@ -155,7 +152,6 @@ public class GameController implements Runnable {
             if (value <= accountBalance) {
                 gameModel.setOwnedFiat(accountBalance - value);
                 gameModel.getChosenCurrencyModel().setOwnedAmount(gameModel.getChosenCurrencyModel().getOwnedAmount() + amountToBuy);
-                gameModel.notifyObservers();
             } else {
                 gamePanel.showErrorMessage("Nie posiadasz tyle pieniędzy!");
             }
@@ -173,7 +169,6 @@ public class GameController implements Runnable {
             if (amountToSell <= gameModel.getChosenCurrencyModel().getOwnedAmount()) {
                 gameModel.setOwnedFiat(accountBalance + value);
                 gameModel.getChosenCurrencyModel().setOwnedAmount(gameModel.getChosenCurrencyModel().getOwnedAmount() - amountToSell);
-                gameModel.notifyObservers();
             } else {
 
                 gamePanel.showErrorMessage("Nie posiadasz tyle waluty " +
@@ -241,7 +236,7 @@ public class GameController implements Runnable {
             gamePanel.setNumberOfCandleSticksButtonState(gameModel.getNumberOfCandleSticksToDraw());
             //todo update plotpanel
             gamePanel.getNumberOfCandleSticksButton().setSelected(false);
-            gamePanel.getPlotPanel().update(numbers[position],
+            gamePanel.getPlotPanel().updates(numbers[position],
                     gameModel.getChosenCurrencyModel().getPacketToDraw(numbers[position]));
         }
 
@@ -320,10 +315,9 @@ public class GameController implements Runnable {
             gameModel.setChosenCurrencyModel(currencyModel);
             for (JButton jButton : gamePanel.getCryptoCurrencyButtons()) {
                 jButton.setBackground(Color.LIGHT_GRAY);
-                jButton.setBorder(null);
             }
             currencyButton.setBackground(Color.GRAY);
-            currencyButton.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
+
             updateGamePanel();
         }
     }

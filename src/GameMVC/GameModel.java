@@ -12,10 +12,9 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class GameModel implements Observable, Serializable {
+public class GameModel implements  Serializable {
     @Serial
     private static final long serialVersionUID = -7756479980491019706L;
-    private transient ArrayList<Observer> observerArrayList = new ArrayList<>();
     private final String name;
     private final int gameSecondsPerFrame = 300; //how many game seconds passes in one frame
     private int delay = 1000; //how many ms it takes to refresh the frame
@@ -39,31 +38,6 @@ public class GameModel implements Observable, Serializable {
     }
 
 
-    @Override
-    public void addObserver(Observer observer) {
-        if (observerArrayList == null) {
-            observerArrayList = new ArrayList<>();
-        }
-        observerArrayList.add(observer);
-    }
-
-    @Override
-    public void removeObserver(Observer observer) {
-        if (observerArrayList == null) {
-            observerArrayList = new ArrayList<>();
-        }
-        observerArrayList.remove(observer);
-    }
-
-    @Override
-    public void notifyObservers() {
-        if (observerArrayList == null) {
-            observerArrayList = new ArrayList<>();
-        }
-        for (Observer o : observerArrayList) {
-            o.update();
-        }
-    }
 
     @Override
     public String toString() {
@@ -75,24 +49,24 @@ public class GameModel implements Observable, Serializable {
     public void updateGame() {
         gameTime.addElapsedTime(gameSecondsPerFrame);
         currencyModels.forEach(cm -> cm.updateCurrencyModel(gameSecondsPerFrame, gameTime));
-        this.notifyObservers();
+
     }
 
     //====================================================Getters and setters=========================================//
 
     public void setPaused(boolean paused) {
         isPaused = paused;
-        notifyObservers();
+
     }
 
     public void setOwnedFiat(double ownedFiat) {
         this.ownedFiat = ownedFiat;
-        notifyObservers();
+
     }
 
     public void setChosenCurrencyModel(CurrencyModel chosenCurrencyModel) {
         this.chosenCurrencyModel = chosenCurrencyModel;
-        notifyObservers();
+
     }
 
     public void setDelay(int delay) {
@@ -154,14 +128,6 @@ public class GameModel implements Observable, Serializable {
 
     public int getNumberOfCandleSticksToDraw() {
         return numberOfCandleSticksToDraw;
-    }
-
-    public ArrayList<Observer> getObserverArrayList() {
-        return observerArrayList;
-    }
-
-    public void setObserverArrayList(ArrayList<Observer> observerArrayList) {
-        this.observerArrayList = observerArrayList;
     }
 
     public String getName() {

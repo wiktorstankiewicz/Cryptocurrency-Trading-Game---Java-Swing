@@ -87,7 +87,7 @@ public class MainFrameController implements Runnable {
                     );
             gameController = new GameController(gamePanel, selectedSave);
             view.showGamePanel(gamePanel);
-            (new Thread(gameController)).start();
+            (new Thread(gameController)).run();
         }
     }
 

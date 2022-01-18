@@ -22,10 +22,12 @@ public class PlotPanel extends JPanel {
         initPlotPanel();
     }
 
-    public void update(int numberOfCandleSticksToPaint,
-                       CurrencyModel.PacketToDraw packetToDraw) {
+    public void updates(int numberOfCandleSticksToPaint,
+                        CurrencyModel.PacketToDraw packetToDraw) {
         this.numberOfCandleSticksToPaint = numberOfCandleSticksToPaint;
         this.packetToDraw = packetToDraw;
+        System.out.println("Number of cs to paint: " + packetToDraw.getCandleSticks().size());
+        this.setIgnoreRepaint(false);
         this.repaint();
         System.out.println("plotpanel updated");
     }
