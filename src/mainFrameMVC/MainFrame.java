@@ -1,4 +1,4 @@
-package view;
+package mainFrameMVC;
 
 import model.GameModel;
 import view.gamePanel.GamePanel;
@@ -18,7 +18,6 @@ public class MainFrame extends JFrame {
     private static final Dimension BIG_DIMENSION = new Dimension(1200, 600);
     @SuppressWarnings("FieldCanBeLocal")
     private final String TITLE = "Giełda - Wiktor Stankiewicz";
-    private final String SAVE_FILE_NAME = "save.ser";
 
     private final JPanel containerPanel = new JPanel();
     private final JPanel mainPanel = new JPanel();
@@ -34,11 +33,11 @@ public class MainFrame extends JFrame {
     private final JButton exitGameButton = new JButton("Wyjdź do Windows");
 
     private final CardLayout cardLayout = new CardLayout();
+    public final JTextField gameNameInputJTextField = new JTextField();
 
     private JSpinner createGameStartingFunds = new JSpinner();
 
-    private ArrayList<GameModel> gameModelArrayList = new ArrayList<>();
-    private JList<GameModel> gameModelSelectionJList = new JList<>();
+    private JList<String> gameModelSelectionJList = new JList<>();
 
 
     //====================================================Public Methods==============================================//
@@ -76,10 +75,9 @@ public class MainFrame extends JFrame {
         JPanel[][] grid = addGridOfJPanels(5, 2, centerPanel, 1, 1);
         JLabel title = new JLabel("Tworzenie nowej gry");
         JLabel name = new JLabel("Nazwa: ");
-        JTextField gameNameInputJTextField = new JTextField();
         JLabel startingFunds = new JLabel("Srodki początkowe: ");
 
-        createGameStartingFunds = new JSpinner(spinnerNumberModel);
+        createGameStartingFunds.setModel(spinnerNumberModel);
         createGamePanel.setLayout(new BorderLayout());
         createGamePanel.add(southPanel, BorderLayout.SOUTH);
         createGamePanel.add(centerPanel, BorderLayout.CENTER);
@@ -97,13 +95,7 @@ public class MainFrame extends JFrame {
 
         //setSpinnerParameters(spinnerNumberModel);
 
-        /*acceptButton.addActionListener(e -> {
-            addGameModel(new GameModel(gameNameInputJTextField.getText(),
-                    ((Integer) createGameStartingFunds.getValue()).doubleValue()));
-            refreshSavesPanel();
-            this.setSize(BIG_DIMENSION);
-            cardLayout.show(containerPanel, "savesPanel");
-        });*/
+        /*acceptButton.addActionListener(e -> );*/
 
         northPanel.add(title);
         southPanel.add(acceptButton);
@@ -114,16 +106,12 @@ public class MainFrame extends JFrame {
         grid[0][1].add(gameNameInputJTextField);
     }
 
-    private void setSpinnerParameters(int min, int max, int initialValue, int stepSize) {
+    public void setSpinnerParameters(int min, int max, int initialValue, int stepSize) {
         SpinnerNumberModel spinnerNumberModel = (SpinnerNumberModel) createGameStartingFunds.getModel();
         spinnerNumberModel.setMinimum(min);
         spinnerNumberModel.setMaximum(max);
         spinnerNumberModel.setValue(initialValue);
         spinnerNumberModel.setStepSize(stepSize);
-    }
-
-    private void addGameModel(GameModel gameModel) {
-        this.gameModelArrayList.add(gameModel);
     }
 
     private void initSavesPanel() {
@@ -147,18 +135,13 @@ public class MainFrame extends JFrame {
     }
 
     private void initGameModelSelectionJList() {
-        DefaultListModel<GameModel> listModel = new DefaultListModel<>();
+        DefaultListModel<String> listModel = new DefaultListModel<>();
 
         gameModelSelectionJList = new JList<>(listModel);
         gameModelSelectionJList.setLayoutOrientation(JList.VERTICAL);
         gameModelSelectionJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        listModel.addAll(gameModelArrayList);
     }
 
-    public void refreshSavesPanel() {
-        ((DefaultListModel<GameModel>) gameModelSelectionJList.getModel()).removeAllElements();
-        ((DefaultListModel<GameModel>) gameModelSelectionJList.getModel()).addAll(gameModelArrayList);
-    }
 
     private void initContainerPanel() {
         containerPanel.setLayout(cardLayout);
@@ -199,34 +182,13 @@ public class MainFrame extends JFrame {
         mainPanel.add(buttonsPanel, BorderLayout.CENTER);
     }
 
-    private void serialize() {
-        try {
-            ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(SAVE_FILE_NAME));
-            os.writeObject(gameModelArrayList);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void deserialize() {
-        try {
-            ObjectInputStream os = new ObjectInputStream(new FileInputStream("save.ser"));
-            //noinspection unchecked
-            gameModelArrayList = (ArrayList<GameModel>) os.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void removeSave(GameModel selectedSave) {
-        gameModelArrayList.remove(selectedSave);
-    }
-
     public void showMainPanel() {
         cardLayout.show(containerPanel, "mainPanel");
     }
 
-    public void showSavesPanel() {
+    public void showSavesPanel(ArrayList<String> labels) {
+        this.updateSavesPanel(labels);
+        this.setSize(BIG_DIMENSION);
         cardLayout.show(containerPanel, "savesPanel");
     }
 
@@ -261,11 +223,89 @@ public class MainFrame extends JFrame {
         createGameButton.addActionListener(createGameButtonListener);
     }
 
-    public void addWindowListener(WindowAdapter windowAdapter){
-        this.addWindowListener(windowAdapter);
+    public JTextField getGameNameInputJTextField() {
+        return gameNameInputJTextField;
     }
 
     //====================================================Inner Classes===============================================//
 
 
+    public String getTITLE() {
+        return TITLE;
+    }
+
+    public JPanel getContainerPanel() {
+        return containerPanel;
+    }
+
+    public JPanel getMainPanel() {
+        return mainPanel;
+    }
+
+    public JPanel getSavesPanel() {
+        return savesPanel;
+    }
+
+    public JPanel getCreateGamePanel() {
+        return createGamePanel;
+    }
+
+    public JButton getAcceptButton() {
+        return acceptButton;
+    }
+
+    public JButton getConfirmSelectionOfSaveButton() {
+        return confirmSelectionOfSaveButton;
+    }
+
+    public JButton getDeleteSelectedSaveButton() {
+        return deleteSelectedSaveButton;
+    }
+
+    public JButton getGoBackButton() {
+        return goBackButton;
+    }
+
+    public JButton getSavesButton() {
+        return savesButton;
+    }
+
+    public JButton getCreateGameButton() {
+        return createGameButton;
+    }
+
+    public JButton getExitGameButton() {
+        return exitGameButton;
+    }
+
+    public CardLayout getCardLayout() {
+        return cardLayout;
+    }
+
+    public JSpinner getCreateGameStartingFunds() {
+        return createGameStartingFunds;
+    }
+
+    public void setCreateGameStartingFunds(JSpinner createGameStartingFunds) {
+        this.createGameStartingFunds = createGameStartingFunds;
+    }
+
+
+    public JList<String> getGameModelSelectionJList() {
+        return gameModelSelectionJList;
+    }
+
+    public void setGameModelSelectionJList(JList<String> gameModelSelectionJList) {
+        this.gameModelSelectionJList = gameModelSelectionJList;
+    }
+
+    public void updateSavesPanel(ArrayList<String> savesLabels) {
+        ((DefaultListModel<String>) gameModelSelectionJList.getModel()).removeAllElements();
+        ((DefaultListModel<String>) gameModelSelectionJList.getModel()).addAll(savesLabels);
+    }
+
+    public void showGamePanel(GamePanel gamePanel) {
+        containerPanel.add(gamePanel, "gameView");
+        cardLayout.show(containerPanel, "gameView");
+    }
 }

@@ -1,26 +1,22 @@
-package controllers;
+package mainFrameMVC;
 
+import controllers.GameController;
 import model.GameModel;
-import model.MainModel;
-import view.MainFrame;
 import view.gamePanel.GamePanel;
-import view.gamePanel.PlotPanel;
 
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class MainFrameController implements Runnable {
-    private GameModel chosenGameModel;
     private MainFrame view;
-    private MainModel model;
+    private MainFrameModel model;
 
     private GameController gameController;
 
-    public MainFrameController(MainModel mainModel, MainFrame mainFrame) {
-        this.model = mainModel;
+    public MainFrameController(MainFrameModel mainFrameModel, MainFrame mainFrame) {
+        this.model = mainFrameModel;
         this.view = mainFrame;
         //gameController = new GameController(new GamePanel(), chosenGameModel);
     }
@@ -28,13 +24,23 @@ public class MainFrameController implements Runnable {
     @Override
     public void run() {
         addListenersToView();
+        model.deserialize();
         view.start();
+    }
+
+    private void initialiseSaveCreationParameters() {
+        view.getGameNameInputJTextField().setText("Zapis " + model.getAmountOfSaves());
+        view.setSpinnerParameters(MainFrameModel.MIN_STARTING_FUNDS,
+                MainFrameModel.MAX_STARTING_FUNDS,
+                MainFrameModel.DEFAULT_STARTING_FUNDS,
+                MainFrameModel.STEP_SIZE);
     }
 
     private void addListenersToView() {
         view.addListenersToButtons(new AcceptButtonListener(), new ConfirmSelectionOfSaveButtonListener(),
                 new DeleteSelectedSaveButtonListener(), new GoBackButtonPressed(),
                 new ExitButtonClicked(), new SavesButtonClicked(), new CreateGameButtonClicked());
+        view.addWindowListener(new MainFrameListener());
     }
 
     private class ExitButtonClicked implements ActionListener {
@@ -47,6 +53,7 @@ public class MainFrameController implements Runnable {
     private class CreateGameButtonClicked implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
+            initialiseSaveCreationParameters();
             view.showCreateGamePanel();
         }
     }
@@ -54,22 +61,23 @@ public class MainFrameController implements Runnable {
     private class SavesButtonClicked implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            view.refreshSavesPanel();
-            view.showSavesPanel();
+            view.showSavesPanel(model.getSavesLabels());
         }
     }
 
     private class ConfirmSelectionOfSaveButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            /*GameModel selectedSave = gameModelSelectionJList.getSelectedValue();
-            if (selectedSave == null) {
+            int selectedIndex = view.getGameModelSelectionJList().getSelectedIndex();
+            if (selectedIndex == -1) {
                 return;
             }
             //todo
-            //gamePanel = new GamePanel(selectedSave);
-            containerPanel.add(gamePanel, "gameView");
-            cardLayout.show(containerPanel, "gameView");*/
+            GamePanel gamePanel = new GamePanel();
+            GameModel selectedSave = model.getSaves().get(selectedIndex);
+            gameController = new GameController(gamePanel, selectedSave);
+            view.showGamePanel(gamePanel);
+            (new Thread(gameController)).start();
         }
     }
 
@@ -122,7 +130,9 @@ public class MainFrameController implements Runnable {
     private class AcceptButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            model.addSave(view.getGameNameInputJTextField().getText(),
+                    ((Integer) view.getCreateGameStartingFunds().getValue()).doubleValue());
+            view.getSavesButton().doClick();
         }
     }
 }

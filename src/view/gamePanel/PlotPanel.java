@@ -67,6 +67,12 @@ public class PlotPanel extends JPanel implements Observer {
     }
 
     private void paintAllCandleSticks(Graphics2D g2D, CurrencyModel.PacketToDraw packetToDraw, int numberOfCandleSticksToPaint) {
+        if(packetToDraw == null){
+            return;
+        }
+        if(numberOfCandleSticksToPaint < 1){
+            return;
+        }
         ArrayList<CandleStick> arrayListToDraw = packetToDraw.getCandleSticks();
         CandleStick lastCandleStick = arrayListToDraw.get(arrayListToDraw.size() - 1);
         int candleStickWidth = this.getWidth() / numberOfCandleSticksToPaint;

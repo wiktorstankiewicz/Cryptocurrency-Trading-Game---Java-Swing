@@ -3,10 +3,8 @@ package view.gamePanel;
 import interfaces.Observer;
 import model.CurrencyModel;
 import model.GameModel;
-import utilities.Constants;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -27,13 +25,13 @@ public class GamePanel extends JPanel implements Observer {
     private final JButton pauseButton = new JButton();
     private final JButton numberOfCandleSticksButton = new JButton();
     private final JLabel gameTimeLabel = new JLabel();
-    private JLabel ownedCrypto;
-    private JLabel valueOfOwnedCrypto;
-    private JTextField amountToBuyOrSellTextField;
-    private JTextField valueOfAmountToBuyOrSell;
+    private final JLabel ownedCrypto = new JLabel();
+    private final JLabel valueOfOwnedCrypto = new JLabel();
+    private final JTextField amountToBuyOrSellTextField = new JTextField();
+    private final JTextField valueOfAmountToBuyOrSell = new JTextField();
     private final JLabel fiatBalance = new JLabel();
-    private JLabel chosenCurrencyText =  new JLabel();
-    private JLabel chosenCurrencyValue = new JLabel();
+    private final JLabel chosenCurrencyText =  new JLabel();
+    private final JLabel chosenCurrencyValue = new JLabel();
     private final JLabel valueOfCryptos = new JLabel();
     private final JLabel totalValue = new JLabel();
 
@@ -218,11 +216,8 @@ public class GamePanel extends JPanel implements Observer {
         valueOfOwnedCrypto.setHorizontalAlignment(JTextField.CENTER);
         valueOfOwnedCrypto.setForeground(Color.WHITE);
 
-        amountToBuyOrSellTextField = new JTextField("1");
-
-        valueOfAmountToBuyOrSell = new JTextField();
+        amountToBuyOrSellTextField.setText("1");
         valueOfAmountToBuyOrSell.setEditable(false);
-
 
         ownedAmountText.setFocusable(false);
         ownedAmountText.setHorizontalAlignment(JTextField.CENTER);
@@ -344,33 +339,21 @@ public class GamePanel extends JPanel implements Observer {
         return ownedCrypto;
     }
 
-    public void setOwnedCrypto(JLabel ownedCrypto) {
-        this.ownedCrypto = ownedCrypto;
-    }
 
     public JLabel getValueOfOwnedCrypto() {
         return valueOfOwnedCrypto;
     }
 
-    public void setValueOfOwnedCrypto(JLabel valueOfOwnedCrypto) {
-        this.valueOfOwnedCrypto = valueOfOwnedCrypto;
-    }
+
 
     public JTextField getAmountToBuyOrSellTextField() {
         return amountToBuyOrSellTextField;
-    }
-
-    public void setAmountToBuyOrSellTextField(JTextField amountToBuyOrSellTextField) {
-        this.amountToBuyOrSellTextField = amountToBuyOrSellTextField;
     }
 
     public JTextField getValueOfAmountToBuyOrSell() {
         return valueOfAmountToBuyOrSell;
     }
 
-    public void setValueOfAmountToBuyOrSell(JTextField valueOfAmountToBuyOrSell) {
-        this.valueOfAmountToBuyOrSell = valueOfAmountToBuyOrSell;
-    }
 
     public JLabel getFiatBalance() {
         return fiatBalance;
@@ -380,17 +363,11 @@ public class GamePanel extends JPanel implements Observer {
         return chosenCurrencyText;
     }
 
-    public void setChosenCurrencyText(JLabel chosenCurrencyText) {
-        this.chosenCurrencyText = chosenCurrencyText;
-    }
 
     public JLabel getChosenCurrencyValue() {
         return chosenCurrencyValue;
     }
 
-    public void setChosenCurrencyValue(JLabel chosenCurrencyValue) {
-        this.chosenCurrencyValue = chosenCurrencyValue;
-    }
 
     public JLabel getValueOfCryptos() {
         return valueOfCryptos;

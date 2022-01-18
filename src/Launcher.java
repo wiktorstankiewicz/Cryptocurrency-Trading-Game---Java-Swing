@@ -1,11 +1,11 @@
-import controllers.MainFrameController;
-import model.MainModel;
-import view.MainFrame;
+import mainFrameMVC.MainFrameController;
+import mainFrameMVC.MainFrameModel;
+import mainFrameMVC.MainFrame;
 
 public class Launcher {
     public static void main(String[] args) {
         MainFrameController mainFrameController =
-                new MainFrameController(new MainModel(), new MainFrame());
+                new MainFrameController(new MainFrameModel(), new MainFrame());
         mainFrameController.run();
     }
 }

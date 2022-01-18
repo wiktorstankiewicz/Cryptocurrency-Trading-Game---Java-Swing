@@ -18,7 +18,7 @@ import java.awt.event.MouseListener;
 import java.util.Locale;
 
 
-public class GameController {
+public class GameController implements Runnable {
     private GamePanel gamePanel;
     private GameModel gameModel;
 
@@ -27,9 +27,9 @@ public class GameController {
     public GameController(GamePanel gamePanel, GameModel gameModel) {
         this.gamePanel = gamePanel;
         this.gameModel = gameModel;
-        this.run();
     }
 
+    @Override
     public void run(){
         timer = new Timer(gameModel.getDelay(), e -> {
            gameModel.updateGame();
