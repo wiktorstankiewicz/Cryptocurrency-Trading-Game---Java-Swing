@@ -15,10 +15,8 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 public class MainFrameController implements Runnable {
-    private MainFrameView view;
-    private MainFrameModel model;
-
-    private GameController gameController;
+    private final MainFrameView view;
+    private final MainFrameModel model;
 
     public MainFrameController(MainFrameModel mainFrameModel, MainFrameView mainFrameView) {
         this.model = mainFrameModel;
@@ -81,37 +79,43 @@ public class MainFrameController implements Runnable {
         public void actionPerformed(ActionEvent e) {
             int selectedIndex = view.getGameModelSelectionJList().getSelectedIndex();
             if (selectedIndex == -1) {
+                view.showErrorMesage("Wybierz zapis");
                 return;
             }
-            //todo
-
-            GameModel selectedSave = model.getSaves().get(selectedIndex);
-            GamePanelView gamePanelView = new GamePanelView(selectedSave.getCurrencyNames(),
-                    selectedSave.getIcons(),
-                    selectedSave.isPaused(),
-                    selectedSave.getSimulationSpeed(),
-                    selectedSave.getNumberOfCandleSticksToDraw()
-                    );
-            //todo
-            gameController = new GameController(gamePanelView, selectedSave);
-            view.showGamePanel(gamePanelView);
-            (new Thread(gameController)).run();
+            try{
+                startGame(selectedIndex);
+            }catch(IllegalArgumentException error){
+                view.showErrorMesage("Nie udało się załadować gry");
+                error.printStackTrace();
+            }
         }
+    }
+
+    private void startGame(int selectedIndex) throws IllegalArgumentException {
+        GameModel selectedSave = model.getSaves().get(selectedIndex);
+        GamePanelView gamePanelView = new GamePanelView(selectedSave.getCurrencyNames(),
+                selectedSave.getIcons(),
+                selectedSave.isPaused(),
+                selectedSave.getSimulationSpeed(),
+                selectedSave.getNumberOfCandleSticksToDraw()
+                );
+        //todo
+        GameController gameController = new GameController(gamePanelView, selectedSave);
+        view.showGamePanel(gamePanelView);
+        (new Thread(gameController)).run();
     }
 
     private class DeleteSelectedSaveButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             //todo delete button listener
-            /*GameModel selectedSave = gameModelSelectionJList.getSelectedValue();
-            int selectedIndex = gameModelSelectionJList.getSelectedIndex();
-            DefaultListModel<GameModel> listModel = (DefaultListModel<GameModel>) gameModelSelectionJList.getModel();
-
+            int selectedIndex = view.getGameModelSelectionJList().getSelectedIndex();
             if (selectedIndex < 0) {
+                view.showErrorMesage("Wybierz zapis");
                 return;
             }
-            listModel.remove(selectedIndex);
-            listModel.removeSave(selectedSave);*/
+                model.deleteSave(selectedIndex);
+                view.updateSavesPanel(model.getSavesLabels());
         }
     }
 
@@ -148,9 +152,14 @@ public class MainFrameController implements Runnable {
     private class AcceptButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            model.addSave(view.getGameNameInputJTextField().getText(),
-                    ((Integer) view.getCreateGameStartingFunds().getValue()).doubleValue(),
-                    model.getSelectedPricePredictor());
+            String saveName = view.getGameNameInputJTextField().getText();
+            double startingFunds = ((Integer) view.getCreateGameStartingFunds().getValue()).doubleValue();
+            PricePredictor selectedPricePredictor = model.getSelectedPricePredictor();
+
+            model.addSave(saveName,
+                    startingFunds,
+                    selectedPricePredictor);
+
             view.getSavesButton().doClick();
         }
     }
