@@ -2,7 +2,11 @@ package mainFrameMVC;
 
 import GameMVC.GameController;
 import GameMVC.GameModel;
-import GameMVC.GamePanel;
+import GameMVC.GamePanelView;
+import interfaces.pricePredictionStrategy.Cheating;
+import interfaces.pricePredictionStrategy.LongTermPrediction;
+import interfaces.pricePredictionStrategy.PricePredictor;
+import interfaces.pricePredictionStrategy.ShortTermPrediction;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,15 +15,14 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 public class MainFrameController implements Runnable {
-    private MainFrame view;
+    private MainFrameView view;
     private MainFrameModel model;
 
     private GameController gameController;
 
-    public MainFrameController(MainFrameModel mainFrameModel, MainFrame mainFrame) {
+    public MainFrameController(MainFrameModel mainFrameModel, MainFrameView mainFrameView) {
         this.model = mainFrameModel;
-        this.view = mainFrame;
-        //gameController = new GameController(new GamePanel(), chosenGameModel);
+        this.view = mainFrameView;
     }
 
     @Override
@@ -44,7 +47,10 @@ public class MainFrameController implements Runnable {
     private void addListenersToView() {
         view.addListenersToButtons(new AcceptButtonListener(), new ConfirmSelectionOfSaveButtonListener(),
                 new DeleteSelectedSaveButtonListener(), new GoBackButtonPressed(),
-                new ExitButtonClicked(), new SavesButtonClicked(), new CreateGameButtonClicked());
+                new ExitButtonClicked(), new SavesButtonClicked(), new CreateGameButtonClicked(),
+                new PricePredictionSelectionRadioButtonSelected(new Cheating()),
+                new PricePredictionSelectionRadioButtonSelected(new ShortTermPrediction()),
+                new PricePredictionSelectionRadioButtonSelected(new LongTermPrediction()));
         view.addWindowListener(new MainFrameListener());
     }
 
@@ -80,13 +86,15 @@ public class MainFrameController implements Runnable {
             //todo
 
             GameModel selectedSave = model.getSaves().get(selectedIndex);
-            GamePanel gamePanel = new GamePanel(selectedSave.getCurrencyNames(), selectedSave.getIcons(),
+            GamePanelView gamePanelView = new GamePanelView(selectedSave.getCurrencyNames(),
+                    selectedSave.getIcons(),
                     selectedSave.isPaused(),
                     selectedSave.getSimulationSpeed(),
                     selectedSave.getNumberOfCandleSticksToDraw()
                     );
-            gameController = new GameController(gamePanel, selectedSave);
-            view.showGamePanel(gamePanel);
+            //todo
+            gameController = new GameController(gamePanelView, selectedSave);
+            view.showGamePanel(gamePanelView);
             (new Thread(gameController)).run();
         }
     }
@@ -141,8 +149,21 @@ public class MainFrameController implements Runnable {
         @Override
         public void actionPerformed(ActionEvent e) {
             model.addSave(view.getGameNameInputJTextField().getText(),
-                    ((Integer) view.getCreateGameStartingFunds().getValue()).doubleValue());
+                    ((Integer) view.getCreateGameStartingFunds().getValue()).doubleValue(),
+                    model.getSelectedPricePredictor());
             view.getSavesButton().doClick();
+        }
+    }
+
+    private class PricePredictionSelectionRadioButtonSelected implements ActionListener {
+        private PricePredictor pricePredictor;
+        public PricePredictionSelectionRadioButtonSelected(PricePredictor pricePredictor) {
+            this.pricePredictor = pricePredictor;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            MainFrameController.this.model.setSelectedPricePredictor(pricePredictor);
         }
     }
 }

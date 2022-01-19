@@ -1,6 +1,6 @@
 package mainFrameMVC;
 
-import GameMVC.GamePanel;
+import GameMVC.GamePanelView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import static utilities.Utilities.addGridOfJPanels;
 
 @SuppressWarnings("ALL")
-public class MainFrame extends JFrame {
-    private static final Dimension SMALL_DIMENSION = new Dimension(300, 300);
+public class MainFrameView extends JFrame {
+    private static final Dimension SMALL_DIMENSION = new Dimension(600, 400);
     private static final Dimension BIG_DIMENSION = new Dimension(1200, 600);
     @SuppressWarnings("FieldCanBeLocal")
     private final String TITLE = "Giełda - Wiktor Stankiewicz";
@@ -29,6 +29,11 @@ public class MainFrame extends JFrame {
     private final JButton createGameButton = new JButton("Stwórz nową grę");
     private final JButton exitGameButton = new JButton("Wyjdź do Windows");
 
+    private final JPanel pricePredictionSelectionButtons = new JPanel(new GridLayout(3,1,1,1));
+    private final JRadioButton pricePredictorSelector1 = new JRadioButton("Cheater!");
+    private final JRadioButton pricePredictorSelector2 = new JRadioButton("Krótkoterminowa Predykcja");
+    private final JRadioButton pricePredictorSelector3 = new JRadioButton("Długoterminowa Predykcja");
+
     private final CardLayout cardLayout = new CardLayout();
     public final JTextField gameNameInputJTextField = new JTextField();
 
@@ -39,7 +44,7 @@ public class MainFrame extends JFrame {
 
     //====================================================Public Methods==============================================//
 
-    public MainFrame() {
+    public MainFrameView() {
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         //this.addWindowListener(new MainFrameListener());
         initMainFrame();
@@ -73,6 +78,19 @@ public class MainFrame extends JFrame {
         JLabel title = new JLabel("Tworzenie nowej gry");
         JLabel name = new JLabel("Nazwa: ");
         JLabel startingFunds = new JLabel("Srodki początkowe: ");
+        JLabel pricePredictionAlgorithm = new JLabel("Wybór doradcy finansowego: ");
+        ButtonGroup buttonGroup = new ButtonGroup();
+
+        buttonGroup.add(pricePredictorSelector1);
+        buttonGroup.add(pricePredictorSelector2);
+        buttonGroup.add(pricePredictorSelector3);
+
+        pricePredictionSelectionButtons.add(pricePredictorSelector1);
+        pricePredictionSelectionButtons.add(pricePredictorSelector2);
+        pricePredictionSelectionButtons.add(pricePredictorSelector3);
+
+
+
 
         createGameStartingFunds.setModel(spinnerNumberModel);
         createGamePanel.setLayout(new BorderLayout());
@@ -90,6 +108,9 @@ public class MainFrame extends JFrame {
         startingFunds.setFocusable(false);
         startingFunds.setHorizontalAlignment(SwingConstants.CENTER);
 
+        pricePredictionAlgorithm.setFocusable(false);
+        pricePredictionAlgorithm.setHorizontalAlignment(SwingConstants.CENTER);
+
         //setSpinnerParameters(spinnerNumberModel);
 
         /*acceptButton.addActionListener(e -> );*/
@@ -98,9 +119,13 @@ public class MainFrame extends JFrame {
         southPanel.add(acceptButton);
 
         grid[0][0].add(name);
+        grid[0][1].add(gameNameInputJTextField);
+
         grid[1][0].add(startingFunds);
         grid[1][1].add(createGameStartingFunds);
-        grid[0][1].add(gameNameInputJTextField);
+
+        grid[2][0].add(pricePredictionAlgorithm);
+        grid[2][1].add(pricePredictionSelectionButtons);
     }
 
     public void setSpinnerParameters(int min, int max, int initialValue, int stepSize) {
@@ -210,7 +235,10 @@ public class MainFrame extends JFrame {
                                       ActionListener goBackButtonListener,
                                       ActionListener exitGameButtonListener,
                                       ActionListener savesButtonListener,
-                                      ActionListener createGameButtonListener) {
+                                      ActionListener createGameButtonListener,
+                                      ActionListener algorithm1Listener,
+                                      ActionListener algorithm2Listener,
+                                      ActionListener algorithm3Listener) {
         acceptButton.addActionListener(acceptButtonListener);
         confirmSelectionOfSaveButton.addActionListener(confirmSelectionOfSaveButtonListener);
         deleteSelectedSaveButton.addActionListener(deleteSelectedSaveButtonListener);
@@ -218,6 +246,9 @@ public class MainFrame extends JFrame {
         exitGameButton.addActionListener(exitGameButtonListener);
         savesButton.addActionListener(savesButtonListener);
         createGameButton.addActionListener(createGameButtonListener);
+        pricePredictorSelector1.addActionListener(algorithm1Listener);
+        pricePredictorSelector2.addActionListener(algorithm2Listener);
+        pricePredictorSelector3.addActionListener(algorithm3Listener);
     }
 
     public JTextField getGameNameInputJTextField() {
@@ -301,8 +332,8 @@ public class MainFrame extends JFrame {
         ((DefaultListModel<String>) gameModelSelectionJList.getModel()).addAll(savesLabels);
     }
 
-    public void showGamePanel(GamePanel gamePanel) {
-        containerPanel.add(gamePanel, "gameView");
+    public void showGamePanel(GamePanelView gamePanelView) {
+        containerPanel.add(gamePanelView, "gameView");
         cardLayout.show(containerPanel, "gameView");
     }
 
@@ -310,7 +341,7 @@ public class MainFrame extends JFrame {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                JOptionPane.showMessageDialog(MainFrame.this
+                JOptionPane.showMessageDialog(MainFrameView.this
                         ,
                         text,"BLAD",
                         JOptionPane.ERROR_MESSAGE,null);

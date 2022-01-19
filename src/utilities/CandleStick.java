@@ -1,8 +1,5 @@
 package utilities;
 
-import view.gamePanel.PriceDirection;
-
-import java.awt.*;
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -129,4 +126,7 @@ public class CandleStick implements Serializable {
         return minPrice;
     }
 
+    public double getAveragePrice() {
+        return Math.abs(closePrice-openPrice)/2.0 + Math.min(closePrice,openPrice);
+    }
 }

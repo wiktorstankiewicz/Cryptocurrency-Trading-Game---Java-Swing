@@ -1,6 +1,7 @@
 package mainFrameMVC;
 
 import GameMVC.GameModel;
+import interfaces.pricePredictionStrategy.PricePredictor;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -14,9 +15,10 @@ public class MainFrameModel {
     private final String SAVE_FILE_NAME = "save.ser";
     private ArrayList<GameModel> saves = new ArrayList<>();
     private GameModel selectedGameModel;
+    private PricePredictor selectedPricePredictor;
 
-    public void addSave(String saveName, double startingFunds) {
-        saves.add(new GameModel(saveName,startingFunds));
+    public void addSave(String saveName, double startingFunds, PricePredictor selectedPricePredictor) {
+        saves.add(new GameModel(saveName,startingFunds, selectedPricePredictor));
     }
 
     public void deleteSave(int index){
@@ -65,5 +67,13 @@ public class MainFrameModel {
             labels.add(gameModel.toString());
         }
         return labels;
+    }
+
+    public void setSelectedPricePredictor(PricePredictor selectedPricePredictor) {
+        this.selectedPricePredictor = selectedPricePredictor;
+    }
+
+    public PricePredictor getSelectedPricePredictor() {
+        return selectedPricePredictor;
     }
 }

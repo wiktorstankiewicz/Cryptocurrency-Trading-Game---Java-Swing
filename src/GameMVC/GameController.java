@@ -2,8 +2,9 @@ package GameMVC;
 
 import model.CurrencyModel;
 import utilities.Constants;
+import utilities.CryptoCurrency;
 import utilities.GameTime;
-import view.gamePanel.PlotPanel;
+
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -17,22 +18,21 @@ import java.util.Locale;
 
 
 public class GameController implements Runnable {
-    private GamePanel gamePanel;
-    private GameModel gameModel;
-    private DocumentListener documentListener = new MyDocumentListener();
-
+    private final GamePanelView gamePanelView;
+    private final GameModel gameModel;
+    private final DocumentListener amountToBuyDocumentListener = new MyDocumentListener();
     private Timer timer;
 
-    public GameController(GamePanel gamePanel, GameModel gameModel) {
-        this.gamePanel = gamePanel;
+    public GameController(GamePanelView gamePanelView, GameModel gameModel) {
+        this.gamePanelView = gamePanelView;
         this.gameModel = gameModel;
     }
 
     @Override
     public void run() {
         addListenersToButtons();
-        gamePanel.addDocumentListenerToAmountToBuyOrSellTextField(documentListener);
-        documentListener.changedUpdate(new EmptyDocumentEvent());
+        gamePanelView.addDocumentListenerToAmountToBuyOrSellTextField(amountToBuyDocumentListener);
+        amountToBuyDocumentListener.changedUpdate(new EmptyDocumentEvent());
         updateGamePanel();
         timer = new Timer(gameModel.getDelay(), e -> {
             gameModel.updateGame();
@@ -49,36 +49,42 @@ public class GameController implements Runnable {
         ArrayList<ActionListener> currencyButtonListeners = new ArrayList<>();
         for(int i = 0; i< gameModel.getCurrencyModels().size(); i++){
             currencyButtonListeners.add(new CurrencyButtonActionListener(gameModel.getCurrencyModels().get(i),
-                    gamePanel.getCryptoCurrencyButtons().get(i)));
+                    gamePanelView.getCryptoCurrencyButtons().get(i)));
         }
-        gamePanel.addActionListenersToCurrencyButtons(currencyButtonListeners);
-        gamePanel.getPauseButton().addActionListener(new PauseButtonPressed());
-        gamePanel.getFastForwardButton().addMouseListener(new FastForwardButtonPressed());
-        gamePanel.getNumberOfCandleSticksButton().addMouseListener(new NumberOfCandleSticksButtonListener());
-        gamePanel.getBuyButton().addActionListener(new BuyButtonPressed());
-        gamePanel.getSellButton().addActionListener(new SellButtonPressed());
+        gamePanelView.addActionListenersToCurrencyButtons(currencyButtonListeners);
+        gamePanelView.getPauseButton().addActionListener(new PauseButtonPressed());
+        gamePanelView.getFastForwardButton().addMouseListener(new FastForwardButtonPressed());
+        gamePanelView.getNumberOfCandleSticksButton().addMouseListener(new NumberOfCandleSticksButtonListener());
+        gamePanelView.getBuyButton().addActionListener(new BuyButtonPressed());
+        gamePanelView.getSellButton().addActionListener(new SellButtonPressed());
     }
 
     public void updateGamePanel() {
         GameTime currentTime = gameModel.getGameTime();
-        gamePanel.setGameTimeLabelText(currentTime.toString());
-        //todo
-        //gamePanel.invokeDocumentListenerEvent();
-        gamePanel.setOwnedCryptoText(String.valueOf(gameModel.getChosenCurrencyModel().getOwnedAmount()));
-        gamePanel.setValueOfOwnedCryptoText("$" + Constants.DOUBLE_FORMATTER.format(gameModel.getChosenCurrencyModel().getOwnedAmount() *
-                gameModel.getChosenCurrencyModel().getCryptoCurrency().getCurrentPrice()));
-        gamePanel.setFiatBalanceText("$" + Constants.DOUBLE_FORMATTER.format(gameModel.getOwnedFiat()));
-        gamePanel.setChosenCurrencyText("Waluta: " +
-                gameModel.getChosenCurrencyModel().getCryptoCurrency().getName().toUpperCase(Locale.ROOT));
-        gamePanel.setChosenCurrencyValueText("Cena: " + "$" +
-                        Constants.DOUBLE_FORMATTER.format(gameModel.getChosenCurrencyModel().getCryptoCurrency().getCurrentPrice()).toUpperCase(Locale.ROOT),
-                gameModel.getChosenCurrencyModel().getPacketToDraw(1).getCandleSticks().get(0).getColor());
-        gamePanel.setValueOfCryptosText("$" + Constants.DOUBLE_FORMATTER.format(gameModel.getValueOfWallet()));
-        documentListener.changedUpdate(new EmptyDocumentEvent());
-        gamePanel.setTotalValueText("$" + Constants.DOUBLE_FORMATTER.format(gameModel.getValueOfWallet() + gameModel.getOwnedFiat()));
+        CryptoCurrency cryptoCurrency = gameModel.getChosenCurrencyModel().getCryptoCurrency();
+        double ownedAmount = gameModel.getChosenCurrencyModel().getOwnedAmount();
+        double currentPrice = cryptoCurrency.getCurrentPrice();
+        double ownedFiat = gameModel.getOwnedFiat();
 
-        gamePanel.getPlotPanel().updates(gameModel.getNumberOfCandleSticksToDraw(),
+        gamePanelView.setGameTimeLabelText(currentTime.toString());
+        gamePanelView.setOwnedCryptoText(String.valueOf(ownedAmount));
+        gamePanelView.setValueOfOwnedCryptoText("$" + Constants.DOUBLE_FORMATTER.format(ownedAmount *
+                currentPrice));
+        gamePanelView.setFiatBalanceText("$" + Constants.DOUBLE_FORMATTER.format(ownedFiat));
+        gamePanelView.setChosenCurrencyText("Waluta: " +
+                cryptoCurrency.getName().toUpperCase(Locale.ROOT));
+        gamePanelView.setChosenCurrencyValueText("Cena: " + "$" +
+                        Constants.DOUBLE_FORMATTER.format(currentPrice).toUpperCase(Locale.ROOT),
+                gameModel.getChosenCurrencyModel().getPacketToDraw(1).getCandleSticks().get(0).getColor());
+        gamePanelView.setValueOfCryptosText("$" + Constants.DOUBLE_FORMATTER.format(gameModel.getValueOfWallet()));
+        amountToBuyDocumentListener.changedUpdate(new EmptyDocumentEvent());
+        gamePanelView.setTotalValueText("$" + Constants.DOUBLE_FORMATTER.format(gameModel.getValueOfWallet() + ownedFiat));
+        gamePanelView.setSuggestedActionState(gameModel.getChosenCurrencyModel().getSugestedAction());
+        gamePanelView.getPlotPanel().update(gameModel.getNumberOfCandleSticksToDraw(),
                 gameModel.getChosenCurrencyModel().getPacketToDraw(gameModel.getNumberOfCandleSticksToDraw()));
+        gamePanelView.setFastForwardButtonState(1000 / gameModel.getDelay());
+        gamePanelView.setPauseButtonState(gameModel.isPaused());
+        gamePanelView.setNumberOfCandleSticksButtonState(gameModel.getNumberOfCandleSticksToDraw());
     }
 
     private class FastForwardButtonPressed implements MouseListener {
@@ -87,7 +93,7 @@ public class GameController implements Runnable {
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            gamePanel.getFastForwardButton().setSelected(true);
+            gamePanelView.getFastForwardButton().setSelected(true);
         }
 
         @Override
@@ -110,8 +116,6 @@ public class GameController implements Runnable {
             }
             gameModel.setDelay(delays[position]);
             timer.setDelay(gameModel.getDelay());
-            gamePanel.setFastForwardButtonState(1000 / delays[position]);
-            gamePanel.getFastForwardButton().setSelected(false);
             updateGamePanel();
         }
 
@@ -132,12 +136,11 @@ public class GameController implements Runnable {
             if (timer.isRunning()) {
                 timer.stop();
                 gameModel.setPaused(true);
-                gamePanel.setPauseButtonState(true);
+                gamePanelView.setPauseButtonState(true);
                 return;
             }
             timer.start();
             gameModel.setPaused(false);
-            gamePanel.setPauseButtonState(false);
             updateGamePanel();
         }
     }
@@ -145,7 +148,7 @@ public class GameController implements Runnable {
     private class BuyButtonPressed implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            double amountToBuy = Double.parseDouble(gamePanel.getAmountToBuyOrSellTextField().getText());
+            double amountToBuy = Double.parseDouble(gamePanelView.getAmountToBuyOrSellTextField().getText());
             double value = amountToBuy * gameModel.getChosenCurrencyModel().getCryptoCurrency().getCurrentPrice();
             double accountBalance = gameModel.getOwnedFiat();
 
@@ -153,7 +156,7 @@ public class GameController implements Runnable {
                 gameModel.setOwnedFiat(accountBalance - value);
                 gameModel.getChosenCurrencyModel().setOwnedAmount(gameModel.getChosenCurrencyModel().getOwnedAmount() + amountToBuy);
             } else {
-                gamePanel.showErrorMessage("Nie posiadasz tyle pieniędzy!");
+                gamePanelView.showErrorMessage("Nie posiadasz tyle pieniędzy!");
             }
             updateGamePanel();
         }
@@ -162,7 +165,7 @@ public class GameController implements Runnable {
     private class SellButtonPressed implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            double amountToSell = Double.parseDouble(gamePanel.getAmountToBuyOrSellTextField().getText());
+            double amountToSell = Double.parseDouble(gamePanelView.getAmountToBuyOrSellTextField().getText());
             double value = amountToSell * gameModel.getChosenCurrencyModel().getCryptoCurrency().getCurrentPrice();
 
             double accountBalance = gameModel.getOwnedFiat();
@@ -171,7 +174,7 @@ public class GameController implements Runnable {
                 gameModel.getChosenCurrencyModel().setOwnedAmount(gameModel.getChosenCurrencyModel().getOwnedAmount() - amountToSell);
             } else {
 
-                gamePanel.showErrorMessage("Nie posiadasz tyle waluty " +
+                gamePanelView.showErrorMessage("Nie posiadasz tyle waluty " +
                         gameModel.getChosenCurrencyModel().getCryptoCurrency().getName() + "!");
             }
             updateGamePanel();
@@ -233,16 +236,9 @@ public class GameController implements Runnable {
                 position = (position + direction) % numbers.length;
             }
             gameModel.setNumberOfCandleSticksToDraw(numbers[position]);
-            gamePanel.setNumberOfCandleSticksButtonState(gameModel.getNumberOfCandleSticksToDraw());
-            //todo update plotpanel
-            gamePanel.getNumberOfCandleSticksButton().setSelected(false);
-            gamePanel.getPlotPanel().updates(numbers[position],
-                    gameModel.getChosenCurrencyModel().getPacketToDraw(numbers[position]));
+            updateGamePanel();
         }
 
-        public void updatePlotPanel(int numberOfCandleSticksToPaint) {
-
-        }
 
         @Override
         public void mouseEntered(MouseEvent e) {
@@ -270,34 +266,15 @@ public class GameController implements Runnable {
         public void changedUpdate(DocumentEvent e) {
             String text;
             try {
-                text = "$" + Constants.DOUBLE_FORMATTER.format(Double.parseDouble(gamePanel.getAmountToBuyOrSellTextField().getText()) *
+                text = "$" + Constants.DOUBLE_FORMATTER.format(Double.parseDouble(gamePanelView.getAmountToBuyOrSellTextField().getText()) *
                         gameModel.getChosenCurrencyModel().getCryptoCurrency().getCurrentPrice());
-                if (Double.parseDouble(gamePanel.getAmountToBuyOrSellTextField().getText()) <= 0) {
+                if (Double.parseDouble(gamePanelView.getAmountToBuyOrSellTextField().getText()) <= 0) {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException numberFormatException) {
                 text = "";
             }
-            gamePanel.getValueOfAmountToBuyOrSell().setText(text);
-        }
-    }
-
-    private class MyKeyListener implements KeyListener {
-        @Override
-        public void keyTyped(KeyEvent e) {
-
-        }
-
-        @Override
-        public void keyPressed(KeyEvent e) {
-            if (e.getKeyChar() == ' ') {
-                gamePanel.getPauseButton().doClick();
-            }
-        }
-
-        @Override
-        public void keyReleased(KeyEvent e) {
-
+            gamePanelView.getValueOfAmountToBuyOrSell().setText(text);
         }
     }
 
@@ -313,11 +290,10 @@ public class GameController implements Runnable {
         @Override
         public void actionPerformed(ActionEvent e) {
             gameModel.setChosenCurrencyModel(currencyModel);
-            for (JButton jButton : gamePanel.getCryptoCurrencyButtons()) {
+            for (JButton jButton : gamePanelView.getCryptoCurrencyButtons()) {
                 jButton.setBackground(Color.LIGHT_GRAY);
             }
             currencyButton.setBackground(Color.GRAY);
-
             updateGamePanel();
         }
     }

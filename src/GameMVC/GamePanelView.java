@@ -1,10 +1,10 @@
 package GameMVC;
 
+import interfaces.pricePredictionStrategy.SugestedAction;
 import view.gamePanel.PlotPanel;
-import view.gamePanel.PriceDirection;
+import utilities.PriceDirection;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 import static utilities.Utilities.addGridOfJPanels;
 
-public class GamePanel extends JPanel {
+public class GamePanelView extends JPanel {
     private final JPanel centerPanel = new JPanel();
     private final JPanel topPanel = new JPanel();
     private final JPanel bottomPanel = new JPanel();
@@ -33,6 +33,7 @@ public class GamePanel extends JPanel {
     private final JLabel chosenCurrencyValue = new JLabel("(WARTOSC)");
     private final JLabel valueOfCryptos = new JLabel();
     private final JLabel totalValue = new JLabel();
+    private final JLabel suggestedAction = new JLabel();
 
     private PlotPanel plotPanel = new PlotPanel();
     private JPanel[][] cryptoCurrencyButtonsPanelGrid;
@@ -42,8 +43,8 @@ public class GamePanel extends JPanel {
 
     //====================================================Public Methods==============================================//
 
-    public GamePanel(ArrayList<String> currencyButtonLabels, ArrayList<ImageIcon> icons, boolean isPaused,
-                     int simulationSpeed, int numberOfCandleSticks) {
+    public GamePanelView(ArrayList<String> currencyButtonLabels, ArrayList<ImageIcon> icons, boolean isPaused,
+                         int simulationSpeed, int numberOfCandleSticks) {
         this.setLayout(new BorderLayout());
         this.setFocusable(true);
         initBorderLayoutPanels(currencyButtonLabels, icons, isPaused,
@@ -153,6 +154,11 @@ public class GamePanel extends JPanel {
         JLabel text1 = new JLabel("Posiadane $: ");
         JLabel text2 = new JLabel("Wartość walut: ");
         JLabel text3 = new JLabel("Łącznie: ");
+        JLabel text4 = new JLabel("Sugerowana akcja: ");
+        suggestedAction.setForeground(Color.WHITE);
+        suggestedAction.setHorizontalAlignment(SwingConstants.CENTER);
+        text4.setHorizontalAlignment(SwingConstants.CENTER);
+        text4.setForeground(Color.WHITE);
         totalValue.setForeground(Color.WHITE);
         totalValue.setHorizontalAlignment(SwingConstants.CENTER);
         valueOfCryptos.setForeground(Color.WHITE);
@@ -178,6 +184,9 @@ public class GamePanel extends JPanel {
 
         grid[2][0].add(text3);
         grid[2][1].add(totalValue);
+
+        grid[4][0].add(text4);
+        grid[4][1].add(suggestedAction);
         this.add(rightPanel, BorderLayout.EAST);
     }
 
@@ -399,7 +408,7 @@ public class GamePanel extends JPanel {
 
 
     public void showErrorMessage(String text) {
-        JOptionPane.showMessageDialog(GamePanel.this,
+        JOptionPane.showMessageDialog(GamePanelView.this,
                 text,
                 "",
                 JOptionPane.WARNING_MESSAGE);
@@ -411,5 +420,30 @@ public class GamePanel extends JPanel {
 
     public JButton getSellButton() {
         return sellButton;
+    }
+
+    public void setSuggestedActionState(SugestedAction state){
+        Color color;
+        String text;
+
+        switch (state){
+            case BUY -> {
+                color = Color.GREEN;
+                text = "Kupuj!";
+            }
+            case SELL -> {
+                color = Color.RED;
+                text = "Sprzedaj!";
+            }
+            case NOT_DETERMINED -> {
+                color = Color.WHITE;
+                text = "???";
+            }
+            default -> {
+                throw new IllegalStateException();
+            }
+        }
+        suggestedAction.setText(text);
+        suggestedAction.setForeground(color);
     }
 }

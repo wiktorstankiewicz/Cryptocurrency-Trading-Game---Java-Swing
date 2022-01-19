@@ -1,18 +1,19 @@
 package GameMVC;
 
+import interfaces.Observer;
+import interfaces.pricePredictionStrategy.PricePredictor;
 import model.CurrencyModel;
 import utilities.Constants;
-import interfaces.Observable;
-import interfaces.Observer;
 import utilities.CryptoCurrency;
 import utilities.GameTime;
 
 import javax.swing.*;
+import java.beans.PropertyChangeEvent;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class GameModel implements  Serializable {
+public class GameModel implements Serializable {
     @Serial
     private static final long serialVersionUID = -7756479980491019706L;
     private final String name;
@@ -25,18 +26,18 @@ public class GameModel implements  Serializable {
     private int simulationSpeed = 1;
     private int numberOfCandleSticksToDraw = 20;
     private boolean isPaused = false;
+    private int amountToBuyInput;
 
     //====================================================Public Methods==============================================//
 
-    public GameModel(String name, double startingFunds) {
+    public GameModel(String name, double startingFunds, PricePredictor selectedPricePredictor) {
         for (CryptoCurrency cc : Constants.AVAILABLE_CRYPTO_CURRENCIES) {
-            currencyModels.add(new CurrencyModel(cc));
+            currencyModels.add(new CurrencyModel(cc, selectedPricePredictor));
         }
         chosenCurrencyModel = currencyModels.get(0);//default chosen currency is the first one
         this.name = name;
         this.ownedFiat = startingFunds;
     }
-
 
 
     @Override
@@ -104,7 +105,7 @@ public class GameModel implements  Serializable {
 
     public ArrayList<String> getCurrencyNames() {
         ArrayList<String> labels = new ArrayList<>();
-        for(CurrencyModel cm: currencyModels){
+        for (CurrencyModel cm : currencyModels) {
             labels.add(cm.getCryptoCurrency().getName());
         }
         return labels;
@@ -112,7 +113,7 @@ public class GameModel implements  Serializable {
 
     public ArrayList<ImageIcon> getIcons() {
         ArrayList<ImageIcon> icons = new ArrayList<>();
-        for(CurrencyModel cm: currencyModels){
+        for (CurrencyModel cm : currencyModels) {
             icons.add(cm.getCryptoCurrency().getImageIcon());
         }
         return icons;
@@ -140,5 +141,13 @@ public class GameModel implements  Serializable {
 
     public void setNumberOfCandleSticksToDraw(int numberOfCandleSticksToDraw) {
         this.numberOfCandleSticksToDraw = numberOfCandleSticksToDraw;
+    }
+
+    public int getAmountToBuyInput() {
+        return amountToBuyInput;
+    }
+
+    public void setAmountToBuyInput(int amountToBuyInput) {
+        this.amountToBuyInput = amountToBuyInput;
     }
 }
