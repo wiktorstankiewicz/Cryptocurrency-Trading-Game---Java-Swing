@@ -46,7 +46,6 @@ public class MainFrameView extends JFrame {
 
     public MainFrameView() {
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        //this.addWindowListener(new MainFrameListener());
         initMainFrame();
         initMainPanel();
         initSavesPanel();
@@ -55,7 +54,7 @@ public class MainFrameView extends JFrame {
         this.add(containerPanel);
     }
 
-    public void start() {
+    public void createGUI() {
         this.setSize(BIG_DIMENSION);
         cardLayout.show(containerPanel, "mainPanel");
         this.setVisible(true);
@@ -89,9 +88,6 @@ public class MainFrameView extends JFrame {
         pricePredictionSelectionButtons.add(pricePredictorSelector2);
         pricePredictionSelectionButtons.add(pricePredictorSelector3);
 
-
-
-
         createGameStartingFunds.setModel(spinnerNumberModel);
         createGamePanel.setLayout(new BorderLayout());
         createGamePanel.add(southPanel, BorderLayout.SOUTH);
@@ -110,10 +106,6 @@ public class MainFrameView extends JFrame {
 
         pricePredictionAlgorithm.setFocusable(false);
         pricePredictionAlgorithm.setHorizontalAlignment(SwingConstants.CENTER);
-
-        //setSpinnerParameters(spinnerNumberModel);
-
-        /*acceptButton.addActionListener(e -> );*/
 
         northPanel.add(title);
         southPanel.add(acceptButton);
@@ -137,23 +129,32 @@ public class MainFrameView extends JFrame {
     }
 
     private void initSavesPanel() {
-        JPanel southPanel = new JPanel(new GridLayout(1, 3, 1, 1));
 
+
+        JLabel title = new JLabel("Wybierz zapis");
+        GroupLayout groupLayout = new GroupLayout(savesPanel);
+        savesPanel.setLayout(groupLayout);
+        groupLayout.setVerticalGroup(groupLayout.createSequentialGroup()
+                .addComponent(title)
+                .addGroup(groupLayout.createParallelGroup()).addComponent(confirmSelectionOfSaveButton).addComponent(deleteSelectedSaveButton).addComponent(goBackButton));
+        groupLayout.setAutoCreateGaps(true);
+        groupLayout.setAutoCreateContainerGaps(true);
+        groupLayout.linkSize(SwingConstants.HORIZONTAL, confirmSelectionOfSaveButton);
         initGameModelSelectionJList();
-
-        //goBackButton.addActionListener(new GoBackButtonPressed());
-
-        //confirmSelectionOfSaveButton.addActionListener(new ConfirmSelectionOfSaveButtonListener());
-        //deleteSelectedSaveButton.addActionListener(new DeleteSelectedSaveButtonListener());
 
         savesPanel.setBackground(Color.green);
         savesPanel.setLayout(new BorderLayout());
-        savesPanel.add(gameModelSelectionJList, BorderLayout.CENTER);
-        savesPanel.add(southPanel, BorderLayout.SOUTH);
+        //savesPanel.add(gameModelSelectionJList, BorderLayout.CENTER);
+        /*centerPanel.add(title);
+        centerPanel.add(gameModelSelectionJList);*/
 
-        southPanel.add(confirmSelectionOfSaveButton);
+
+
+
+
+        /*southPanel.add(confirmSelectionOfSaveButton);
         southPanel.add(deleteSelectedSaveButton);
-        southPanel.add(goBackButton);
+        southPanel.add(goBackButton);*/
     }
 
     private void initGameModelSelectionJList() {
@@ -348,5 +349,9 @@ public class MainFrameView extends JFrame {
             }
         }).start();
 
+    }
+
+    public void setGameNameInputJTextFieldText(String text) {
+        gameNameInputJTextField.setText(text);
     }
 }

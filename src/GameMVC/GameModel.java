@@ -27,6 +27,7 @@ public class GameModel implements Serializable {
     private int numberOfCandleSticksToDraw = 20;
     private boolean isPaused = false;
     private int amountToBuyInput;
+    private Double amountToBuyOrSellInput;
 
     //====================================================Public Methods==============================================//
 
@@ -149,5 +150,20 @@ public class GameModel implements Serializable {
 
     public void setAmountToBuyInput(int amountToBuyInput) {
         this.amountToBuyInput = amountToBuyInput;
+    }
+
+    public double getValueOfAmountToBuyOrSellInput() {
+        if(amountToBuyOrSellInput == null){
+            return 0;
+        }
+        return chosenCurrencyModel.getCryptoCurrency().getCurrentPrice()*amountToBuyOrSellInput;
+    }
+
+    public void setAmountToBuyOrSellInput(Double amountToBuyOrSellInput) {
+        this.amountToBuyOrSellInput = amountToBuyOrSellInput;
+    }
+
+    public Double getAmountToBuyOrSellInput() {
+        return amountToBuyOrSellInput;
     }
 }

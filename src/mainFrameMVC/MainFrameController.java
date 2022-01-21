@@ -31,11 +31,11 @@ public class MainFrameController implements Runnable {
         }catch (IOException | ClassNotFoundException e){
             view.showErrorMesage("Nie udało się wczytać zapisów");
         }
-        view.start();
+        view.createGUI();
     }
 
     private void initialiseSaveCreationParameters() {
-        view.getGameNameInputJTextField().setText("Zapis " + model.getAmountOfSaves());
+        view.setGameNameInputJTextFieldText("Zapis " + model.getAmountOfSaves());
         view.setSpinnerParameters(MainFrameModel.MIN_STARTING_FUNDS,
                 MainFrameModel.MAX_STARTING_FUNDS,
                 MainFrameModel.DEFAULT_STARTING_FUNDS,
@@ -43,9 +43,13 @@ public class MainFrameController implements Runnable {
     }
 
     private void addListenersToView() {
-        view.addListenersToButtons(new AcceptButtonListener(), new ConfirmSelectionOfSaveButtonListener(),
-                new DeleteSelectedSaveButtonListener(), new GoBackButtonPressed(),
-                new ExitButtonClicked(), new SavesButtonClicked(), new CreateGameButtonClicked(),
+        view.addListenersToButtons(new AcceptButtonListener(),
+                new ConfirmSelectionOfSaveButtonListener(),
+                new DeleteSelectedSaveButtonListener(),
+                new GoBackButtonPressed(),
+                new ExitButtonClicked(),
+                new SavesButtonClicked(),
+                new CreateGameButtonClicked(),
                 new PricePredictionSelectionRadioButtonSelected(new Cheating()),
                 new PricePredictionSelectionRadioButtonSelected(new ShortTermPrediction()),
                 new PricePredictionSelectionRadioButtonSelected(new LongTermPrediction()));
@@ -99,7 +103,6 @@ public class MainFrameController implements Runnable {
                 selectedSave.getSimulationSpeed(),
                 selectedSave.getNumberOfCandleSticksToDraw()
                 );
-        //todo
         GameController gameController = new GameController(gamePanelView, selectedSave);
         view.showGamePanel(gamePanelView);
         (new Thread(gameController)).run();
@@ -108,7 +111,6 @@ public class MainFrameController implements Runnable {
     private class DeleteSelectedSaveButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            //todo delete button listener
             int selectedIndex = view.getGameModelSelectionJList().getSelectedIndex();
             if (selectedIndex < 0) {
                 view.showErrorMesage("Wybierz zapis");
@@ -155,11 +157,13 @@ public class MainFrameController implements Runnable {
             String saveName = view.getGameNameInputJTextField().getText();
             double startingFunds = ((Integer) view.getCreateGameStartingFunds().getValue()).doubleValue();
             PricePredictor selectedPricePredictor = model.getSelectedPricePredictor();
-
+            if(selectedPricePredictor == null ){
+                view.showErrorMesage("Wybierz doradcę finansowego!");
+                return;
+            }
             model.addSave(saveName,
                     startingFunds,
                     selectedPricePredictor);
-
             view.getSavesButton().doClick();
         }
     }

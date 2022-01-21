@@ -1,8 +1,8 @@
 package GameMVC;
 
 import interfaces.pricePredictionStrategy.SugestedAction;
-import view.gamePanel.PlotPanel;
 import utilities.PriceDirection;
+import view.gamePanel.PlotPanel;
 
 import javax.swing.*;
 import javax.swing.event.DocumentListener;
@@ -279,7 +279,7 @@ public class GamePanelView extends JPanel {
     }
 
     public void setPauseButtonState(boolean isPaused) {
-        if(!isPaused){
+        if (!isPaused) {
             pauseButton.setText("Pause");
             pauseButton.setForeground(Color.BLACK);
             return;
@@ -422,11 +422,11 @@ public class GamePanelView extends JPanel {
         return sellButton;
     }
 
-    public void setSuggestedActionState(SugestedAction state){
+    public void setSuggestedActionState(SugestedAction state) {
         Color color;
         String text;
 
-        switch (state){
+        switch (state) {
             case BUY -> {
                 color = Color.GREEN;
                 text = "Kupuj!";
@@ -445,5 +445,9 @@ public class GamePanelView extends JPanel {
         }
         suggestedAction.setText(text);
         suggestedAction.setForeground(color);
+    }
+
+    public void setValueOfAmountToBuyOrSellTextFieldState(String text) {
+        valueOfAmountToBuyOrSell.setText("$" + text);
     }
 }

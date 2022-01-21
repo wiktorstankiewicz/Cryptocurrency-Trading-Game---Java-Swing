@@ -76,4 +76,5 @@ public class MainFrameModel {
     public PricePredictor getSelectedPricePredictor() {
         return selectedPricePredictor;
     }
+
 }

@@ -265,16 +265,26 @@ public class GameController implements Runnable {
         @Override
         public void changedUpdate(DocumentEvent e) {
             String text;
-            try {
-                text = "$" + Constants.DOUBLE_FORMATTER.format(Double.parseDouble(gamePanelView.getAmountToBuyOrSellTextField().getText()) *
-                        gameModel.getChosenCurrencyModel().getCryptoCurrency().getCurrentPrice());
-                if (Double.parseDouble(gamePanelView.getAmountToBuyOrSellTextField().getText()) <= 0) {
-                    throw new NumberFormatException();
+            double amountToBuyOrSell;
+            Double value;
+            try{
+                amountToBuyOrSell = Double.parseDouble(gamePanelView.getAmountToBuyOrSellTextField().getText());
+                gameModel.setAmountToBuyOrSellInput(amountToBuyOrSell);
+                if(amountToBuyOrSell < 0){
+                    throw new IllegalArgumentException();
                 }
-            } catch (NumberFormatException numberFormatException) {
+            }catch(Exception exception){
+                gamePanelView.setValueOfAmountToBuyOrSellTextFieldState("");
+                return;
+            }
+
+            value = gameModel.getValueOfAmountToBuyOrSellInput();
+            try{
+                text = Constants.DOUBLE_FORMATTER.format(value);
+            }catch(IllegalArgumentException exception){
                 text = "";
             }
-            gamePanelView.getValueOfAmountToBuyOrSell().setText(text);
+            gamePanelView.setValueOfAmountToBuyOrSellTextFieldState(text);
         }
     }
 
