@@ -2,9 +2,11 @@ package mainFrameMVC;
 
 import GameMVC.GameModel;
 import interfaces.pricePredictionStrategy.PricePredictor;
+import utilities.Constants;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class MainFrameModel {
     static final int MIN_STARTING_FUNDS = 5000;
@@ -16,6 +18,7 @@ public class MainFrameModel {
     private ArrayList<GameModel> saves = new ArrayList<>();
     private GameModel selectedGameModel;
     private PricePredictor selectedPricePredictor;
+    private int selectedIndex;
 
     public void addSave(String saveName, double startingFunds, PricePredictor selectedPricePredictor) {
         saves.add(new GameModel(saveName,startingFunds, selectedPricePredictor));
@@ -61,10 +64,17 @@ public class MainFrameModel {
         this.selectedGameModel = selectedGameModel;
     }
 
-    public ArrayList<String> getSavesLabels() {
-        ArrayList<String> labels = new ArrayList<>();
-        for(GameModel gameModel: saves){
-            labels.add(gameModel.toString());
+    public Vector<Vector<String>> getSavesLabels() {
+        Vector<Vector<String>> labels = new Vector<>();
+        Vector<String> buffer = new Vector<>(5);
+        for(int i = 0; i<saves.size(); i++){
+            buffer.add(String.valueOf(i));
+            buffer.add(saves.get(i).getName());
+            buffer.add(Constants.DOUBLE_FORMATTER.format(saves.get(i).getOwnedFiat()));
+            buffer.add(saves.get(i).getPricePredictorName());
+            buffer.add(String.valueOf(saves.get(i).getGameTime()));
+            labels.add(buffer);
+            buffer = new Vector<>();
         }
         return labels;
     }
@@ -75,5 +85,13 @@ public class MainFrameModel {
 
     public PricePredictor getSelectedPricePredictor() {
         return selectedPricePredictor;
+    }
+
+    public int getSelectedIndex() {
+        return selectedIndex;
+    }
+
+    public void setSelectedIndex(int selectedIndex) {
+        this.selectedIndex = selectedIndex;
     }
 }

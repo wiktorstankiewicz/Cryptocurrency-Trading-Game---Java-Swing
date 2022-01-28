@@ -8,10 +8,8 @@ import interfaces.pricePredictionStrategy.LongTermPrediction;
 import interfaces.pricePredictionStrategy.PricePredictor;
 import interfaces.pricePredictionStrategy.ShortTermPrediction;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import javax.swing.*;
+import java.awt.event.*;
 import java.io.IOException;
 
 public class MainFrameController implements Runnable {
@@ -26,9 +24,9 @@ public class MainFrameController implements Runnable {
     @Override
     public void run() {
         addListenersToView();
-        try{
+        try {
             model.deserialize();
-        }catch (IOException | ClassNotFoundException e){
+        } catch (IOException | ClassNotFoundException e) {
             view.showErrorMesage("Nie udało się wczytać zapisów");
         }
         view.start();
@@ -50,6 +48,8 @@ public class MainFrameController implements Runnable {
                 new PricePredictionSelectionRadioButtonSelected(new ShortTermPrediction()),
                 new PricePredictionSelectionRadioButtonSelected(new LongTermPrediction()));
         view.addWindowListener(new MainFrameListener());
+        view.addListenerToSavesTable(new SavesMenuListener(view.getSavesTable()));
+
     }
 
     private class ExitButtonClicked implements ActionListener {
@@ -77,28 +77,26 @@ public class MainFrameController implements Runnable {
     private class ConfirmSelectionOfSaveButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            int selectedIndex = view.getGameModelSelectionJList().getSelectedIndex();
-            if (selectedIndex == -1) {
+            int selectedIndex = model.getSelectedIndex();
+            if (selectedIndex > model.getAmountOfSaves() || selectedIndex < 0) {
                 view.showErrorMesage("Wybierz zapis");
                 return;
             }
-            try{
-                startGame(selectedIndex);
-            }catch(IllegalArgumentException error){
-                view.showErrorMesage("Nie udało się załadować gry");
-                error.printStackTrace();
-            }
+            startGame(selectedIndex);
         }
     }
 
-    private void startGame(int selectedIndex) throws IllegalArgumentException {
+    private void startGame(int selectedIndex) {
+        if (model.getAmountOfSaves() == 0) {
+            return;
+        }
         GameModel selectedSave = model.getSaves().get(selectedIndex);
         GamePanelView gamePanelView = new GamePanelView(selectedSave.getCurrencyNames(),
                 selectedSave.getIcons(),
                 selectedSave.isPaused(),
                 selectedSave.getSimulationSpeed(),
                 selectedSave.getNumberOfCandleSticksToDraw()
-                );
+        );
         //todo
         GameController gameController = new GameController(gamePanelView, selectedSave);
         view.showGamePanel(gamePanelView);
@@ -108,14 +106,13 @@ public class MainFrameController implements Runnable {
     private class DeleteSelectedSaveButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            //todo delete button listener
-            int selectedIndex = view.getGameModelSelectionJList().getSelectedIndex();
+            int selectedIndex = model.getSelectedIndex();
             if (selectedIndex < 0) {
                 view.showErrorMesage("Wybierz zapis");
                 return;
             }
-                model.deleteSave(selectedIndex);
-                view.updateSavesPanel(model.getSavesLabels());
+            model.deleteSave(selectedIndex);
+            view.updateSavesPanel(model.getSavesLabels());
         }
     }
 
@@ -166,6 +163,7 @@ public class MainFrameController implements Runnable {
 
     private class PricePredictionSelectionRadioButtonSelected implements ActionListener {
         private PricePredictor pricePredictor;
+
         public PricePredictionSelectionRadioButtonSelected(PricePredictor pricePredictor) {
             this.pricePredictor = pricePredictor;
         }
@@ -175,4 +173,21 @@ public class MainFrameController implements Runnable {
             MainFrameController.this.model.setSelectedPricePredictor(pricePredictor);
         }
     }
+
+    private class SavesMenuListener extends MouseAdapter {
+        private JTable jTable;
+
+        public SavesMenuListener(JTable jTable) {
+            this.jTable = jTable;
+        }
+
+        @Override
+        public void mouseClicked(java.awt.event.MouseEvent evt) {
+            int row = jTable.rowAtPoint(evt.getPoint());
+            if (row >= 0) {
+                model.setSelectedIndex(row);
+            }
+        }
+    }
 }
+

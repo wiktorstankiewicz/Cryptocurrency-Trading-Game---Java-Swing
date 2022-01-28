@@ -1,6 +1,6 @@
 package GameMVC;
 
-import interfaces.Observer;
+
 import interfaces.pricePredictionStrategy.PricePredictor;
 import model.CurrencyModel;
 import utilities.Constants;
@@ -8,7 +8,6 @@ import utilities.CryptoCurrency;
 import utilities.GameTime;
 
 import javax.swing.*;
-import java.beans.PropertyChangeEvent;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,6 +26,7 @@ public class GameModel implements Serializable {
     private int numberOfCandleSticksToDraw = 20;
     private boolean isPaused = false;
     private int amountToBuyInput;
+    private PricePredictor pricePredictor;
 
     //====================================================Public Methods==============================================//
 
@@ -37,6 +37,7 @@ public class GameModel implements Serializable {
         chosenCurrencyModel = currencyModels.get(0);//default chosen currency is the first one
         this.name = name;
         this.ownedFiat = startingFunds;
+        this.pricePredictor = selectedPricePredictor;
     }
 
 
@@ -149,5 +150,9 @@ public class GameModel implements Serializable {
 
     public void setAmountToBuyInput(int amountToBuyInput) {
         this.amountToBuyInput = amountToBuyInput;
+    }
+
+    public String getPricePredictorName() {
+        return this.pricePredictor.getClass().getSimpleName();
     }
 }

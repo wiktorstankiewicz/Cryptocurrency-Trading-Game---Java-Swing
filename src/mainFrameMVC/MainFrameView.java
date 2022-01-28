@@ -3,9 +3,15 @@ package mainFrameMVC;
 import GameMVC.GamePanelView;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.util.ArrayList;
+import java.util.Vector;
 
 import static utilities.Utilities.addGridOfJPanels;
 
@@ -23,7 +29,7 @@ public class MainFrameView extends JFrame {
 
     private final JButton acceptButton = new JButton("Akceptuj");
     private final JButton confirmSelectionOfSaveButton = new JButton("Wybierz");
-    private final JButton deleteSelectedSaveButton = new JButton("Usuń zapis");
+    private final JButton deleteSelectedSaveButton = new JButton("Usuń");
     private final JButton goBackButton = new JButton("Wróć");
     private final JButton savesButton = new JButton("Wczytaj zapis");
     private final JButton createGameButton = new JButton("Stwórz nową grę");
@@ -39,7 +45,7 @@ public class MainFrameView extends JFrame {
 
     private JSpinner createGameStartingFunds = new JSpinner();
 
-    private JList<String> gameModelSelectionJList = new JList<>();
+    private JTable gameModelSelectionJList = new JTable();
 
 
     //====================================================Public Methods==============================================//
@@ -84,6 +90,7 @@ public class MainFrameView extends JFrame {
         buttonGroup.add(pricePredictorSelector1);
         buttonGroup.add(pricePredictorSelector2);
         buttonGroup.add(pricePredictorSelector3);
+        pricePredictorSelector1.doClick();
 
         pricePredictionSelectionButtons.add(pricePredictorSelector1);
         pricePredictionSelectionButtons.add(pricePredictorSelector2);
@@ -137,9 +144,14 @@ public class MainFrameView extends JFrame {
     }
 
     private void initSavesPanel() {
-        JPanel southPanel = new JPanel(new GridLayout(1, 3, 1, 1));
+        JPanel topPanel = new JPanel();
+        JPanel southPanel = new JPanel(new GridLayout(1, 7, 1, 1));
+        JPanel[][] southPanelGrid = addGridOfJPanels(3,7,southPanel,1,1);
+        JPanel centerPanel = new JPanel();
+        initGameModelSelectionJMenu();
+        JScrollPane jScrollPane = new JScrollPane(gameModelSelectionJList);
+        jScrollPane.setPreferredSize(new Dimension(700,500));
 
-        initGameModelSelectionJList();
 
         //goBackButton.addActionListener(new GoBackButtonPressed());
 
@@ -148,20 +160,22 @@ public class MainFrameView extends JFrame {
 
         savesPanel.setBackground(Color.green);
         savesPanel.setLayout(new BorderLayout());
-        savesPanel.add(gameModelSelectionJList, BorderLayout.CENTER);
+        savesPanel.add(topPanel, BorderLayout.NORTH);
+        savesPanel.add(centerPanel, BorderLayout.CENTER);
         savesPanel.add(southPanel, BorderLayout.SOUTH);
 
-        southPanel.add(confirmSelectionOfSaveButton);
-        southPanel.add(deleteSelectedSaveButton);
-        southPanel.add(goBackButton);
+        southPanelGrid[1][1].add(confirmSelectionOfSaveButton);
+        southPanelGrid[1][3].add(deleteSelectedSaveButton);
+        southPanelGrid[1][5].add(goBackButton);
+        topPanel.add(new JLabel("Wybór zapisu"));
+
+        centerPanel.add(jScrollPane);
     }
 
-    private void initGameModelSelectionJList() {
-        DefaultListModel<String> listModel = new DefaultListModel<>();
-
-        gameModelSelectionJList = new JList<>(listModel);
-        gameModelSelectionJList.setLayoutOrientation(JList.VERTICAL);
-        gameModelSelectionJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    private void initGameModelSelectionJMenu() {
+        DefaultTableModel dataModel = new DefaultTableModel();
+        gameModelSelectionJList.setModel(dataModel);
+        gameModelSelectionJList.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
     }
 
 
@@ -205,12 +219,13 @@ public class MainFrameView extends JFrame {
     }
 
     public void showMainPanel() {
+        this.setSize(BIG_DIMENSION);
         cardLayout.show(containerPanel, "mainPanel");
     }
 
-    public void showSavesPanel(ArrayList<String> labels) {
+    public void showSavesPanel(Vector<Vector<String>> labels) {
         this.updateSavesPanel(labels);
-        this.setSize(BIG_DIMENSION);
+        this.setSize(new Dimension(800,400));
         cardLayout.show(containerPanel, "savesPanel");
     }
 
@@ -249,6 +264,7 @@ public class MainFrameView extends JFrame {
         pricePredictorSelector1.addActionListener(algorithm1Listener);
         pricePredictorSelector2.addActionListener(algorithm2Listener);
         pricePredictorSelector3.addActionListener(algorithm3Listener);
+        pricePredictorSelector1.doClick();
     }
 
     public JTextField getGameNameInputJTextField() {
@@ -318,22 +334,30 @@ public class MainFrameView extends JFrame {
         this.createGameStartingFunds = createGameStartingFunds;
     }
 
+    public void updateSavesPanel(Vector<Vector<String>> savesLabels) {
+        DefaultTableModel model = (DefaultTableModel)(gameModelSelectionJList.getModel());
+        /*for(Vector<String> row: savesLabels){
+            model.addRow(row);
+            model.addRow(new Object[]{"1","2","3"});
+        }*/
+        Vector<String> columns = new Vector<>();
+        columns.add("Numer");
+        columns.add("Nazwa");
+        columns.add("Balans");
+        columns.add("Doradca");
+        columns.add("Czas");
 
-    public JList<String> getGameModelSelectionJList() {
-        return gameModelSelectionJList;
-    }
 
-    public void setGameModelSelectionJList(JList<String> gameModelSelectionJList) {
-        this.gameModelSelectionJList = gameModelSelectionJList;
-    }
 
-    public void updateSavesPanel(ArrayList<String> savesLabels) {
-        ((DefaultListModel<String>) gameModelSelectionJList.getModel()).removeAllElements();
-        ((DefaultListModel<String>) gameModelSelectionJList.getModel()).addAll(savesLabels);
+        model.setDataVector(savesLabels,columns);
+        gameModelSelectionJList.getColumnModel().getColumn(0).setPreferredWidth(50);
+        gameModelSelectionJList.setPreferredSize(new Dimension(800,300));
+        System.out.println("saves panel updated");
     }
 
     public void showGamePanel(GamePanelView gamePanelView) {
         containerPanel.add(gamePanelView, "gameView");
+        this.setSize(BIG_DIMENSION);
         cardLayout.show(containerPanel, "gameView");
     }
 
@@ -348,5 +372,13 @@ public class MainFrameView extends JFrame {
             }
         }).start();
 
+    }
+
+    public JTable getSavesTable() {
+        return gameModelSelectionJList;
+    }
+
+    public void addListenerToSavesTable(MouseAdapter savesMenuListener) {
+        gameModelSelectionJList.addMouseListener(savesMenuListener);
     }
 }

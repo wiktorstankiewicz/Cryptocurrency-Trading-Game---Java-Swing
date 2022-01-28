@@ -181,37 +181,10 @@ public class GameController implements Runnable {
         }
     }
 
-    private static class EmptyDocumentEvent implements DocumentEvent {
-        @Override
-        public int getOffset() {
-            return 0;
-        }
-
-        @Override
-        public int getLength() {
-            return 0;
-        }
-
-        @Override
-        public Document getDocument() {
-            return null;
-        }
-
-        @Override
-        public EventType getType() {
-            return null;
-        }
-
-        @Override
-        public ElementChange getChange(Element elem) {
-            return null;
-        }
-    }
-
     public class NumberOfCandleSticksButtonListener implements MouseListener {
+
         private int position = 0;
         private final int[] numbers = {20, 50, 100, 150, 200};
-
         @Override
         public void mouseClicked(MouseEvent e) {
 
@@ -249,14 +222,14 @@ public class GameController implements Runnable {
         public void mouseExited(MouseEvent e) {
 
         }
-    }
 
+    }
     private class MyDocumentListener implements DocumentListener {
+
         @Override
         public void insertUpdate(DocumentEvent e) {
             changedUpdate(e);
         }
-
         @Override
         public void removeUpdate(DocumentEvent e) {
             changedUpdate(e);
@@ -276,12 +249,12 @@ public class GameController implements Runnable {
             }
             gamePanelView.getValueOfAmountToBuyOrSell().setText(text);
         }
-    }
 
+    }
     private class CurrencyButtonActionListener implements ActionListener {
+
         private final CurrencyModel currencyModel;
         private final JButton currencyButton;
-
         public CurrencyButtonActionListener(CurrencyModel currencyModel, JButton currencyButton) {
             this.currencyModel = currencyModel;
             this.currencyButton = currencyButton;
@@ -296,6 +269,33 @@ public class GameController implements Runnable {
             currencyButton.setBackground(Color.GRAY);
             updateGamePanel();
         }
+
     }
 
+    private static class EmptyDocumentEvent implements DocumentEvent {
+        @Override
+        public int getOffset() {
+            return 0;
+        }
+
+        @Override
+        public int getLength() {
+            return 0;
+        }
+
+        @Override
+        public Document getDocument() {
+            return null;
+        }
+
+        @Override
+        public EventType getType() {
+            return null;
+        }
+
+        @Override
+        public ElementChange getChange(Element elem) {
+            return null;
+        }
+    }
 }
