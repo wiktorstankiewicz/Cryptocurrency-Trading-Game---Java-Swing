@@ -1,6 +1,5 @@
 package utilities;
 
-import java.awt.*;
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -108,11 +107,11 @@ public class CandleStick implements Serializable {
         return minPricePercentHeight;
     }
 
-    public Color getColor() {
+    public PriceDirection getColor() {
         if (closePricePercentHeight - openPricePercentHeight > 0) {
-            return Color.GREEN;
+            return PriceDirection.UP;
         }
-        return Color.RED;
+        return PriceDirection.DOWN;
     }
 
     public GameTime getOpenTime() {
@@ -127,4 +126,7 @@ public class CandleStick implements Serializable {
         return minPrice;
     }
 
+    public double getAveragePrice() {
+        return Math.abs(closePrice-openPrice)/2.0 + Math.min(closePrice,openPrice);
+    }
 }

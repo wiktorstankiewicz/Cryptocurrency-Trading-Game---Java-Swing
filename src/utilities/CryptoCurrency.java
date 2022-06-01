@@ -10,6 +10,7 @@ import java.util.Random;
 
 public class CryptoCurrency implements Serializable {
     @Serial
+    private double basePrice;
     private static final long serialVersionUID = 1932135322629796758L;
     private final double marketVolatility;
     private final double cycleLengthParameter;
@@ -19,6 +20,8 @@ public class CryptoCurrency implements Serializable {
     private final ImageIcon imageIcon;
     private State state = State.BULL_MODE;
     private final double maxPercentChange;
+
+
     public enum State {
         BEAR_MODE, BULL_MODE, STAGNATION_MODE
     }
@@ -33,6 +36,7 @@ public class CryptoCurrency implements Serializable {
                           double maxPercentChange) {
         this.name = name;
         this.currentPrice = basePrice;
+        this.basePrice = basePrice;
         this.priceCalculation = new RandomlyGeneratedValue();
         this.imageIcon = new ImageIcon(imgFilePath);
         this.marketVolatility = marketVolatility;
@@ -102,5 +106,13 @@ public class CryptoCurrency implements Serializable {
 
     public double getMaxPercentChange() {
         return maxPercentChange;
+    }
+
+    public double getBasePrice() {
+        return basePrice;
+    }
+
+    public void setBasePrice(double basePrice) {
+        this.basePrice = basePrice;
     }
 }

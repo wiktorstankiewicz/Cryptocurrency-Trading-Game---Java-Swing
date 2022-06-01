@@ -1,5 +1,7 @@
 package model;
 
+import interfaces.pricePredictionStrategy.SugestedAction;
+import interfaces.pricePredictionStrategy.PricePredictor;
 import utilities.*;
 
 import java.io.Serial;
@@ -15,12 +17,18 @@ public class CurrencyModel implements Serializable {
     private final ArrayList<CandleStick> candleStickArrayList = new ArrayList<>();
     private final CryptoCurrency cryptoCurrency;
     private double ownedAmount;
+    private PricePredictor pricePredictor;
 
     //====================================================Public Methods==============================================//
-    public CurrencyModel(CryptoCurrency cryptoCurrency) {
+    public CurrencyModel(CryptoCurrency cryptoCurrency, PricePredictor pricePredictor) {
         this.cryptoCurrency = cryptoCurrency;
         ownedAmount = 0;
         candleStickArrayList.add(new CandleStick(cryptoCurrency, new GameTime()));
+        this.pricePredictor = pricePredictor;
+    }
+
+    public SugestedAction getSugestedAction(){
+        return pricePredictor.getSuggestedAction(this);
     }
 
     public void updateCurrencyModel(int timePassed, GameTime gameTime) {
@@ -62,6 +70,18 @@ public class CurrencyModel implements Serializable {
 
     public void setOwnedAmount(double ownedAmount) {
         this.ownedAmount = ownedAmount;
+    }
+
+    public double getAveragePrice() {
+        double sum = 0;
+        for(CandleStick cs: candleStickArrayList){
+            sum += cs.getAveragePrice();
+        }
+        try{
+            return sum/(double)candleStickArrayList.size();
+        }catch(ArithmeticException e){
+            return 0;
+        }
     }
 
     //====================================================Inner Classes===============================================//

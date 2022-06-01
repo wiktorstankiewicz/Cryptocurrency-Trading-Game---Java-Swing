@@ -9,6 +9,8 @@ public class Constants {
     public static final ArrayList<CryptoCurrency> AVAILABLE_CRYPTO_CURRENCIES = new ArrayList<>();
     public static final DecimalFormat DOUBLE_FORMATTER = new DecimalFormat("#.##");
 
+
+
     static {
         AVAILABLE_CRYPTO_CURRENCIES.add(new CryptoCurrency("Bitcoin",
                 50000,
@@ -38,11 +40,11 @@ public class Constants {
                 5,
                 0.001));
 
-        AVAILABLE_CRYPTO_CURRENCIES.add(new CryptoCurrency("TFuel",
+        /*AVAILABLE_CRYPTO_CURRENCIES.add(new CryptoCurrency("TFuel",
                 7500,
                 "src/resources/TFuel.png",
                 4,
                 5,
-                0.001));
+                0.001));*/
     }
 }
